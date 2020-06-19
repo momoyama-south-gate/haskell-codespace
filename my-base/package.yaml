@@ -1,0 +1,22 @@
+name: my-base
+
+extra-source-files:
+- doctest.json
+
+library:
+  source-dirs: src
+  dependencies:
+  - base
+  - QuickCheck
+  default-extensions:
+  - NoImplicitPrelude
+
+tests:
+  doctests:
+    main: Main.hs
+    source-dirs: doctests
+    dependencies:
+    - base
+    - doctest
+    - doctest-discover
+    - QuickCheck
