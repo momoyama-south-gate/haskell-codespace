@@ -6,7 +6,7 @@ where
 
 import My.Prelude.Internal
 
-data Void -- TODO: 完成 Void 的定义
+data Void = Void Void-- TODO: 完成 Void 的定义
 
 absurd :: Void -> a
-absurd = undefined
+absurd (Void void) = absurd void

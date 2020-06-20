@@ -22,7 +22,10 @@ import My.Prelude.Internal
 -- data Maybe a = Nothing | Just a
 
 maybe :: b -> (a -> b) -> Maybe a -> b
-maybe = undefined
+maybe b f ma =
+  case ma of
+    Just a -> f a
+    Nothing -> Nothing
 
 isJust :: Maybe a -> Bool
 isJust = undefined

@@ -43,27 +43,28 @@ prop_Functor_Id :: forall f a. (Functor f, Eq (f a)) => f a -> Bool
 prop_Functor_Id fa = fmap identity fa == identity fa
 
 (<$) :: Functor f => a -> f b -> f a
-(<$) = undefined
+(<$) a fb = fmap (const a) fb
 
 infixl 4 <$
 
 ($>) :: Functor f => f a -> b -> f b
-($>) = undefined
+($>) fa b = fmap (const b) fa
 
 infixl 4 $>
 
 (<$>) :: Functor f => (a -> b) -> f a -> f b
-(<$>) = undefined
+(<$>) f fa = fmap f fa
 
 infixl 4 <$>
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
-(<&>) = undefined
+(<&>) fa f = fmap f fa
 
 infixl 1 <&>
 
 void :: Functor f => f a -> f ()
-void = undefined
+void fa = fmap (const ()) fa
 
-instance Functor ((->) a)
+instance Functor ((->) a) where
+  fmap f g = (f.g)
 -- fmap :: (b -> c) -> (a -> b) -> (a -> c)
