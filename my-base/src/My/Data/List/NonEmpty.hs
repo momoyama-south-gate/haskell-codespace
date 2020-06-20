@@ -28,7 +28,8 @@ instance Applicative NonEmpty where
   -- pure :: a -> NonEmpty a
   pure x = x :| []
   -- <*> :: NonEmpty (a -> b) -> NonEmpty a -> NonEmpty b
-  (f :| _) <*> nxs = fmap f nxs
+  (f :| []) <*> xs = fmap f xs
+  (f :| (f2:fs)) <*> nxs = fmap f nxs <> ((f2 :| fs) <*> nxs)
 
 (<|) :: a -> NonEmpty a -> NonEmpty a 
 infixr 5 <|
