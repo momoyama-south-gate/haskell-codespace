@@ -154,6 +154,7 @@ instance Applicative ZipList where
 -- class Monoid a where
 --   mempty :: a
 --   (<>) :: a -> a -> a
+
 class Applicative f => Alternative f where
   empty :: f a
   (<|>) :: f a -> f a -> f a

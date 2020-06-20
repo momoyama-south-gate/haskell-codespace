@@ -20,10 +20,17 @@ import My.Data.Proxy
 import Data.Functor.Identity
 
 fst :: (a, b) -> a
+<<<<<<< HEAD
 fst (a, _) = a
 
 snd :: (a, b) -> b
 snd (_, b) = b
+=======
+fst (a, b) = a
+
+snd :: (a, b) -> b
+snd (a, b) = b
+>>>>>>> code move
 
 curry :: ((a, b) -> c) -> a -> b -> c
 curry f a b = f (a, b)
