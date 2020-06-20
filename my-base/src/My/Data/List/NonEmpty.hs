@@ -6,17 +6,35 @@ where
 import Data.List.NonEmpty as X (NonEmpty (..))
 import My.Control.Applicative
 import My.Data.Functor
+import My.Data.List((++))
 import My.Data.Semigroup
 import My.Prelude.Internal
 
 -- data NonEmpty a = a :| [a]
 -- infixr 5 :|
 
-instance Semigroup (NonEmpty a)
+-- |
+-- NO NonEmpty: prop> prop_Semigroup_Assoc @(NonEmpty Int)
+instance Semigroup (NonEmpty a) where
+  -- <> :: NonEmpty a -> NonEmpty a -> NonEmpty a
+  (x :| xs) <> (y :| ys) = x :| (xs ++ (y:ys))
 
-instance Functor NonEmpty
+instance Functor NonEmpty where
+  -- fmap :: (a -> b) -> NonEmpty a -> NonEmpty b
+  fmap = map
 
-instance Applicative NonEmpty
+instance Applicative NonEmpty where
+  -- pure :: a -> NonEmpty a
+  pure x = x :| []
+  -- <*> :: NonEmpty (a -> b) -> NonEmpty a -> NonEmpty b
+  (f :| _) <*> nxs = fmap f nxs
+
+(<|) :: a -> NonEmpty a -> NonEmpty a 
+infixr 5 <|
+(<|) x (y :| ys) = x :| (y:ys)
+
+map :: (a -> b) -> NonEmpty a -> NonEmpty b
+map f (x :| xs) = (f x) :| (fmap f xs)
 
 -- | 追加练习
 -- 访问以下 url：
