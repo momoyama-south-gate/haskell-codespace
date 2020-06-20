@@ -11,7 +11,7 @@ import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
 
--- |
+-- --|
 -- prop> prop_Functor_Comp @([])
 -- prop> prop_Semigroup_Assoc @([] (Sum Int))
 -- prop> prop_Monoid_LeftId @([] (Sum Int))
@@ -21,7 +21,7 @@ import My.Prelude.Internal
 -- prop> prop_Applicative_Id @[]
 -- prop> prop_Applicative_Comp @[]
 -- prop> prop_Applicative_Homo @[] Proxy
--- FAILE prop> prop_Applicative_Inter @[] 
+-- prop> prop_Applicative_Inter @[] 
 instance Semigroup [a] where
   -- <> :: [a] -> [a] -> [a]
   (<>) = (++)
@@ -40,7 +40,7 @@ instance Applicative [] where
   -- <*> :: [a -> b] -> [a] -> [b]
   [] <*> _ = []
   _ <*> [] = []
-  (f:_) <*> xs = fmap f xs
+  (f:fs) <*> xs = ( fmap f xs ) <> (fs <*> xs)
 
 instance Alternative []
 
@@ -95,6 +95,9 @@ map f xs = reverse $ go f xs [] where
     [] -> acc
     x:xs -> go f xs ((f x):acc)
 
+-- -- |
+-- >>> reverse "abc"
+-- "cba"
 reverse :: [a] -> [a]
 reverse xs = go xs [] where
   go xs acc = case xs of
@@ -267,8 +270,14 @@ lines xs = reverse $ go xs [] [] where
     [] -> if word == [] then acc else (reverse word:acc)
     x:xs -> if x == '\n' then go xs [] (reverse word:acc) else go xs (x:word) acc
 
+-- --|
+-- >>> words "Lorem ipsum\ndolor"
+-- ["Lorem","ipsum","dolor"]
 words :: String -> [String]
-words = undefined
+words xs = undefined
+  -- reverse $ go xs [] [] where
+  -- go xs word acc = case xs of
+    -- [] -> 
 
 unlines :: [String] -> String
 unlines = undefined
