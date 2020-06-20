@@ -21,7 +21,7 @@ instance Functor [] where
   fmap = map
 
 instance Applicative [] where
-  pure = (\a -> [a])
+  pure a = [a]
   (<*>) fab fa =
     case (fab, fa) of
       ([], _) -> []
