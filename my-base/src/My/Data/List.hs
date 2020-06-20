@@ -269,10 +269,12 @@ lines xs = reverse $ go xs [] [] where
 -- >>> words "Lorem ipsum\ndolor"
 -- ["Lorem","ipsum","dolor"]
 words :: String -> [String]
-words xs = undefined
-  -- reverse $ go xs [] [] where
-  -- go xs word acc = case xs of
-    -- [] -> 
+words xs = reverse $ go xs [] [] where
+  go xs word acc = case xs of
+    [] -> if word == [] then acc else (reverse word:acc)
+    x:xs -> if x == '\n' || x == ' '
+      then go xs [] (reverse word:acc)
+      else go xs (x:word) acc
 
 unlines :: [String] -> String
 unlines = undefined
