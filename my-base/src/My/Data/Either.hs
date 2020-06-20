@@ -19,7 +19,6 @@ import My.Data.Proxy
 import My.Data.Functor
 import My.Data.Semigroup
 import My.Prelude.Internal
-import Data.Bool (not)
 
 either :: (a -> c) -> (b -> c) -> Either a b -> c
 either fl _ (Left x) = fl x
