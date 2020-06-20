@@ -8,28 +8,48 @@ import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
 
-instance Semigroup [a]
+instance Semigroup [a] where
+  (<>) = (++)
 
-instance Monoid [a]
+instance Monoid [a] where
+  mempty = []
 
-instance Functor []
+instance Functor [] where
+  fmap = map
 
-instance Applicative []
+instance Applicative [] where
+  pure = (\a -> [a])
+  (<*>) fab fa =
+    case (fab, fa) of
+      ([], _) -> []
+      (_, []) -> []
+      (f: tf, a: ta) -> (f a) : (tf <*> ta)
 
 instance Alternative []
 
 instance Monad []
 
 (++) :: [a] -> [a] -> [a]
-(++) = undefined
+(++) l1 l2 =
+  case (l1, l2) of
+    ([], _) -> l2
+    (_, []) -> l1
+    (h1: t1, _) -> h1 : (t1 ++ l2)
 
 infixr 5 ++
 
 head :: [a] -> Maybe a
-head = undefined
+head l =
+  case l of
+    [] -> Nothing
+    a : t -> Just a
 
 last :: [a] -> Maybe a
-last = undefined
+last l =
+  case l of
+    [] -> Nothing
+    a : [] -> Just a
+    a: tl -> last tl
 
 tail :: [a] -> Maybe [a]
 tail = undefined
@@ -44,7 +64,10 @@ length :: [a] -> Int
 length = undefined
 
 map :: (a -> b) -> [a] -> [b]
-map = undefined
+map f l =
+  case l of
+    [] -> []
+    a : tl -> (f a) : (map f tl)
 
 reverse :: [a] -> [a]
 reverse = undefined
