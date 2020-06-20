@@ -87,42 +87,58 @@ prop_Applicative_Inter fab y = (u <*> pure y) == (pure ($ y) <*> u)
     u = applyFun <$> fab
 
 liftA :: Applicative f => (a -> b) -> f a -> f b
-liftA = undefined
+liftA f fa = ((pure f) <*> fa)
 
 liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-liftA2 = undefined
+liftA2 f fa fb = (liftA f fa) <*> fb
 
 liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-liftA3 = undefined
+liftA3 f fa fb fc = (liftA2 f fa fb) <*> fc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) = undefined
+(<*) fa fb = fa
 
 infixl 4 <*
 
 (*>) :: Applicative f => f a -> f b -> f b
-(*>) = undefined
+(*>) = flip (<*)
 
 infixl 4 *>
 
 (<**>) :: Applicative f => f a -> f (a -> b) -> f b
-(<**>) = undefined
+(<**>) = flip (<*>)
 
 infixl 4 <**>
 
-instance Applicative ((->) a)
-
+instance Applicative ((->) a) where
+  pure b = (\_ -> b)
+  (<*>) fab fa = (\a -> ((fab a) (fa a)))
 -- pure :: b -> (a -> b)
 -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+-- ((a->b) -> (a->c)) -> (a->b) -> (a->c)
 
 -- newtype ZipList a
 --   = ZipList
 --       { getZipList :: [a]
 --       }
 
-instance Functor ZipList
+instance Functor ZipList where
+  fmap f (ZipList [a])= ZipList [f a] 
+-- fmap :: (a->b) -> f a -> f b
 
-instance Applicative ZipList
+instance Applicative ZipList where
+  pure = (\a -> ZipList [a]) 
+-- pure :: a -> f a
+  (<*>) (ZipList lf) (ZipList la) =
+    let
+      zipf :: [a -> b] -> [a] -> [b]
+      zipf lf la =
+        case (lf, la) of
+          (headf:tailf, heada:taila) -> (headf heada) : (zipf tailf taila)
+          _ -> []
+    in
+      ZipList $ zipf lf la
+-- (<*>) :: ZipList(a->b) -> ZipList a -> ZipList b
 
 class Applicative f => Alternative f where
   empty :: f a

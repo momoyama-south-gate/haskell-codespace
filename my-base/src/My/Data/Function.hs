@@ -10,26 +10,39 @@ where
 
 import My.Prelude.Internal
 
+-- |
+-- prop> identity "abc" == "abc"
 identity :: a -> a
-identity = undefined
+identity a = a
 
+-- |
+-- prop> const "abc" 5 == "abc"
 const :: a -> b -> a
-const = undefined
+const a b = a
 
+-- |
+-- prop> ((+1) ((*2) 2)) == ((+1) . (*2)) 2
+-- prop> (+1) ((*2) ((+4) 4)) == ((+1) . (*2) . (+4)) 4
 (.) :: (b -> c) -> (a -> b) -> a -> c
-(.) = undefined
+(.) fbc fab a = fbc (fab a)
 
 infixr 9 .
 
+-- |
+-- prop> (+) 1 2 == flip (+) 2 1
 flip :: (a -> b -> c) -> b -> a -> c
-flip = undefined
+flip fab b a = fab a b
 
+-- |
+-- prop> ((+1) ((*2) 2)) == ((+1) $ (*2) 2)
 ($) :: (a -> b) -> a -> b
-($) = undefined
+($) fab a = fab a
 
 infixr 0 $
 
+-- |
+-- prop> (*2) ((+1) 1) == (1 & (+1) & (*2))
 (&) :: a -> (a -> b) -> b
-(&) = undefined
+(&) a fab = fab a
 
 infixl 1 &
