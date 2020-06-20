@@ -84,39 +84,87 @@ prop_Applicative_Inter fab y = (u <*> pure y) == (pure ($ y) <*> u)
     u = applyFun <$> fab
 
 liftA :: Applicative f => (a -> b) -> f a -> f b
-liftA = undefined
+liftA fab apa = pure fab <*> apa
 
 liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-liftA2 = undefined
+liftA2 fabc apa apb = liftA fabc apa <*> apb 
 
 liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-liftA3 = undefined
+liftA3 fabcd apa apb apc = liftA2 fabcd apa apb <*> apc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) = undefined
+(<*) = const 
 
 infixl 4 <*
 
 (*>) :: Applicative f => f a -> f b -> f b
-(*>) = undefined
+(*>) = flip (<*)
 
 infixl 4 *>
 
 (<**>) :: Applicative f => f a -> f (a -> b) -> f b
-(<**>) = undefined
+(<**>) = flip (<*>)
 
 infixl 4 <**>
 
-instance Applicative ((->) a)
-
--- pure :: b -> (a -> b)
--- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+instance Applicative ((->) a) where
+  -- pure :: b -> (a -> b)
+  pure = const
+  -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+  (fabc <*> fab) a = (fabc a) (fab a)
 
 -- newtype ZipList a
 --   = ZipList
 --       { getZipList :: [a]
 --       }
 
-instance Functor ZipList
+-- --|
+-- prop> prop_Functor_Comp @ZipList
+instance Functor ZipList where
+  -- fmap :: (a -> b) -> ZipList a -> ZipList b
+  fmap = zipMap
 
-instance Applicative ZipList
+zipMap :: (a -> b) -> ZipList a -> ZipList b
+zipMap f (ZipList xs) = ZipList (reverse $ go f xs []) where
+  go f xs acc = case xs of 
+    [] -> acc
+    x:xs -> go f xs ((f x):acc)
+
+reverse :: [a] -> [a]
+reverse xs = go xs [] where
+  go xs acc = case xs of
+    [] -> acc
+    x:xs -> go xs (x:acc)
+
+-- INFINITY LOOP --|
+-- prop> prop_Applicative_Id @ZipList
+-- prop> prop_Applicative_Comp @ZipList
+-- prop> prop_Applicative_Homo @ZipList Proxy
+-- prop> prop_Applicative_Inter @ZipList 
+instance Applicative ZipList where
+  -- pure :: a -> ZipList a
+  pure x = ZipList (repeat x)
+  -- <*> :: ZipList (a -> b) -> ZipList a -> ZipList b
+  ZipList fs <*> ZipList x = ZipList (map uncurry1 ts) where
+    ts = zip fs x
+    
+-- |
+-- >>> zip [1,2,3] (repeat 1)
+-- [(1,1),(2,1),(3,1)]
+repeat :: a -> [a]
+repeat x = xs where xs = x:xs
+
+zip :: [a] -> [b] -> [(a, b)]
+zip xs ys = reverse $ go xs ys [] where
+  go [] _ acc = acc
+  go _ [] acc = acc
+  go (x:xs) (y:ys) acc = go xs ys ((x,y):acc)
+
+uncurry1 :: ((a -> b), a) -> b
+uncurry1 (f, x) = f x
+
+map :: (a -> b) -> [a] -> [b]
+map f xs = reverse $ go f xs [] where 
+  go f xs acc = case xs of
+    [] -> acc
+    x:xs -> go f xs ((f x):acc)
