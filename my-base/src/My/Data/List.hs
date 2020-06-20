@@ -11,11 +11,17 @@ import My.Data.Tuple
 import My.Prelude.Internal
 import My.Data.Function
 
+instance Semigroup [a] where
+  (<>) = (++)
+
+instance Monoid [a] where
+  mempty = []
+
 instance Functor [] where
   fmap = map
 
 instance Applicative [] where
-  pure a = [a]
+  pure = (\a -> [a])
   (<*>) fab fa =
     case (fab, fa) of
       ([], _) -> []
