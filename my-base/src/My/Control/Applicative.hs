@@ -16,6 +16,7 @@ module My.Control.Applicative
   )
 where
 
+import qualified Prelude as P
 import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
@@ -120,6 +121,7 @@ instance Applicative ((->) a) where
 
 -- --|
 -- prop> prop_Functor_Comp @ZipList
+-- prop> prop_Functor_Id @ZipList
 instance Functor ZipList where
   -- fmap :: (a -> b) -> ZipList a -> ZipList b
   fmap = zipMap
@@ -136,35 +138,16 @@ reverse xs = go xs [] where
     [] -> acc
     x:xs -> go xs (x:acc)
 
--- INFINITY LOOP --|
+-- |
 -- prop> prop_Applicative_Id @ZipList
 -- prop> prop_Applicative_Comp @ZipList
--- prop> prop_Applicative_Homo @ZipList Proxy
+-- -- prop> prop_Applicative_Homo @ZipList Proxy
 -- prop> prop_Applicative_Inter @ZipList 
 instance Applicative ZipList where
   -- pure :: a -> ZipList a
-  pure x = ZipList (repeat x)
+  pure x = ZipList $ P.repeat x
   -- <*> :: ZipList (a -> b) -> ZipList a -> ZipList b
-  ZipList fs <*> ZipList x = ZipList (map uncurry1 ts) where
-    ts = zip fs x
+  ZipList [] <*> _ = ZipList []
+  _ <*> ZipList [] = ZipList []
+  ZipList (f:fs) <*> ZipList (x:xs) = ZipList ((f x): getZipList (ZipList fs <*> ZipList xs))
     
--- |
--- >>> zip [1,2,3] (repeat 1)
--- [(1,1),(2,1),(3,1)]
-repeat :: a -> [a]
-repeat x = xs where xs = x:xs
-
-zip :: [a] -> [b] -> [(a, b)]
-zip xs ys = reverse $ go xs ys [] where
-  go [] _ acc = acc
-  go _ [] acc = acc
-  go (x:xs) (y:ys) acc = go xs ys ((x,y):acc)
-
-uncurry1 :: ((a -> b), a) -> b
-uncurry1 (f, x) = f x
-
-map :: (a -> b) -> [a] -> [b]
-map f xs = reverse $ go f xs [] where 
-  go f xs acc = case xs of
-    [] -> acc
-    x:xs -> go f xs ((f x):acc)
