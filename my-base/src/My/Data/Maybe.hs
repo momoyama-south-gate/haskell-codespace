@@ -21,7 +21,6 @@ import My.Data.Proxy
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
-import Data.Bool (not)
 
 -- data Maybe a = Nothing | Just a
 
