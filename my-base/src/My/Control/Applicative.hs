@@ -22,6 +22,7 @@ module My.Control.Applicative
   )
 where
 
+import qualified Prelude as P
 import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
@@ -161,6 +162,7 @@ many = undefined
 instance Alternative ZipList
 -- --|
 -- prop> prop_Functor_Comp @ZipList
+-- prop> prop_Functor_Id @ZipList
 instance Functor ZipList where
   -- fmap :: (a -> b) -> ZipList a -> ZipList b
   fmap = zipMap
@@ -177,14 +179,14 @@ reverse xs = go xs [] where
     [] -> acc
     x:xs -> go xs (x:acc)
 
--- INFINITY LOOP --|
+-- |
 -- prop> prop_Applicative_Id @ZipList
 -- prop> prop_Applicative_Comp @ZipList
--- prop> prop_Applicative_Homo @ZipList Proxy
+-- -- prop> prop_Applicative_Homo @ZipList Proxy
 -- prop> prop_Applicative_Inter @ZipList 
 instance Applicative ZipList where
   -- pure :: a -> ZipList a
-  pure x = ZipList (repeat x)
+  pure x = ZipList $ P.repeat x
   -- <*> :: ZipList (a -> b) -> ZipList a -> ZipList b
   ZipList fs <*> ZipList x = ZipList (map uncurry1 ts) where
     ts = zip fs x
@@ -209,3 +211,7 @@ map f xs = reverse $ go f xs [] where
   go f xs acc = case xs of
     [] -> acc
     x:xs -> go f xs ((f x):acc)
+  ZipList [] <*> _ = ZipList []
+  _ <*> ZipList [] = ZipList []
+  ZipList (f:fs) <*> ZipList (x:xs) = ZipList ((f x): getZipList (ZipList fs <*> ZipList xs))
+    
