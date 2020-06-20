@@ -9,15 +9,27 @@ import My.Control.Monad
 import My.Data.Functor
 import My.Data.Semigroup
 import My.Prelude.Internal
+import My.Data.List
 
 -- data NonEmpty a = a :| [a]
 -- infixr 5 :|
 
-instance Semigroup (NonEmpty a)
+instance Semigroup (NonEmpty a) where
+  (<>) nl1 nl2 =
+    case (nl1, nl2) of
+      (a :| [], b :| tb) -> a :| (b : tb)
+      (a :| ta, b :| tb) -> a :| (ta ++ (b : tb)) 
 
-instance Functor NonEmpty
+instance Functor NonEmpty where
+  fmap f (a :| ta) = (f a) :| (fmap f ta) 
 
-instance Applicative NonEmpty
+instance Applicative NonEmpty where
+  pure = (\a -> (a :| [a]))
+  (<*>) nlf nla =
+    case (nlf, nla) of
+      (f :| _, a :| []) -> (f a :| [])
+      (f :| [], a :| _) -> (f a :| [])
+      (f :| tf, a :| ta) -> (f a :| (tf <*> ta))
 
 instance Monad NonEmpty
 
