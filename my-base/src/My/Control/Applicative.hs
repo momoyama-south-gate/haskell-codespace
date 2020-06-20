@@ -126,8 +126,13 @@ instance Applicative ((->) a) where
 --       }
 
 instance Functor ZipList where
-  fmap f (ZipList [a])= ZipList [f a] 
--- fmap :: (a->b) -> f a -> f b
+  fmap f (ZipList l) = ZipList $ map f l 
+    where
+      map :: (a -> b) -> [a] -> [b]
+      map f l =
+        case l of
+        [] -> []
+        a : tl -> (f a) : (map f tl)
 
 instance Applicative ZipList where
   pure = (\a -> ZipList [a]) 
