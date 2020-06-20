@@ -15,10 +15,7 @@ import My.Data.List
 -- infixr 5 :|
 
 instance Semigroup (NonEmpty a) where
-  (<>) nl1 nl2 =
-    case (nl1, nl2) of
-      (a :| [], b :| tb) -> a :| (b : tb)
-      (a :| ta, b :| tb) -> a :| (ta ++ (b : tb)) 
+  (<>) (a :| ta) ( b :| tb) = a :| (ta ++ (b : tb)) 
 
 instance Functor NonEmpty where
   fmap f (a :| ta) = (f a) :| (fmap f ta) 

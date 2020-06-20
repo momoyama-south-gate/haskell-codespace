@@ -18,12 +18,12 @@ instance Functor [] where
   fmap = map
 
 instance Applicative [] where
-  pure = (\a -> [a])
+  pure a = [a]
   (<*>) fab fa =
     case (fab, fa) of
       ([], _) -> []
       (_, []) -> []
-      (f: tf, a: ta) -> (f a) : (tf <*> ta)
+      (f: tf, _) -> (map f fa) ++ (tf <*> fa)
 
 instance Alternative []
 
