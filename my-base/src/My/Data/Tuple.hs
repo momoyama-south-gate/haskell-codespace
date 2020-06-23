@@ -55,4 +55,4 @@ instance Monoid a => Applicative ((,) a) where
   -- pure :: b -> (a, b)
   pure x = (mempty, x)
   -- <*> :: (a,(b -> c)) -> (a,b) -> (a,c)
-  (_,f) <*> (a,b) = (a, (f b))
+  (a1,f) <*> (a2,b) = ((a1 <> a2), (f b))
