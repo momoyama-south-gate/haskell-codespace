@@ -93,6 +93,7 @@ map f xs = reverse $ go f xs [] where
 -- -- |
 -- >>> reverse "abc"
 -- "cba"
+-- prop> reverse (xs <> ys) == reverse ys ++ reverse xs
 reverse :: [a] -> [a]
 reverse xs = go xs [] where
   go xs acc = case xs of
@@ -244,7 +245,7 @@ unzip xs = (reverse as, reverse bs) where
     [] -> (ac1,ac2)
     (a,b):xs -> go xs (a:ac1, b:ac2)
 
--- |
+-- -- |
 -- >>> lines ""
 -- []
 -- >>> lines "\n"
@@ -260,50 +261,149 @@ unzip xs = (reverse as, reverse bs) where
 -- >>> lines "one\ntwo\n"
 -- ["one","two"]
 lines :: String -> [String]
-lines xs = reverse $ go xs [] [] where
-  go xs word acc = case xs of
-    [] -> if word == [] then acc else (reverse word:acc)
-    x:xs -> if x == '\n' then go xs [] (reverse word:acc) else go xs (x:word) acc
+lines = foldr charon [] where
+  charon '\n' css = "":css
+  charon c [] = [[c]]
+  charon c (cs:css) = (c:cs):css
+  -- reverse $ go xs [] [] where
+  -- go xs word acc = case xs of
+  --   [] -> if word == [] then acc else (reverse word:acc)
+  --   x:xs -> if x == '\n' then go xs [] (reverse word:acc) else go xs (x:word) acc
 
--- --|
+-- -- |
+-- >>> words ""
+-- []
+-- >>> words "abc"
+-- ["abc"]
+-- >>> words "abc efg"
+-- ["abc","efg"]
+-- >>> words "abc  "
+-- ["abc"]
+-- >>> words "abc  efg"
+-- ["abc","efg"]
+-- >>> words "abc \tefg"
+-- ["abc","efg"]
 -- >>> words "Lorem ipsum\ndolor"
 -- ["Lorem","ipsum","dolor"]
 words :: String -> [String]
-words xs = reverse $ go xs [] [] where
-  go xs word acc = case xs of
-    [] -> if word == [] then acc else (reverse word:acc)
-    x:xs -> if x == '\n' || x == ' '
-      then go xs [] (reverse word:acc)
-      else go xs (x:word) acc
+words = foldr charon [] where
+  bs = [' ','\t','\n','\r']
+  charon c [] = if elem c bs then [] else [[c]]
+  charon c [cs] = if elem c bs then "":[cs] else [c:cs]
+  charon c ("":css) = if elem c bs then "":css else [c]:css
+  charon c (cs:css) = if elem c bs then "":(cs:css) else (c:cs):css
 
+-- -- |
+-- >>> unlines ["Hello", "World", "!"]
+-- "Hello\nWorld\n!\n"
+-- >>> unlines []
+-- ""
+-- >>> unlines [""]
+-- "\n"
+-- >>> unlines ["one"]
+-- "one\n"
+-- >>> unlines ["one",""]
+-- "one\n\n"
+-- >>> unlines ["one","two"]
+-- "one\ntwo\n"
 unlines :: [String] -> String
-unlines = undefined
+unlines [] = []
+unlines ("":css) = '\n':(unlines css)
+unlines (cs:css) = cs <> ('\n':(unlines css))
 
+-- -- |
+-- >>> unwords []
+-- ""
+-- >>> unwords ["abc"]
+-- "abc"
+-- >>> unwords ["abc "]
+-- "abc "
+-- >>> unwords ["abc","efg"]
+-- "abc efg"
+-- >>> unwords ["Lorem","ipsum","dolor"]
+-- "Lorem ipsum dolor"
 unwords :: [String] -> String
-unwords = undefined
+unwords [] = []
+unwords [cs] = cs
+unwords (cs:css) = cs <> (' ':(unwords css))
 
+
+-- -- |
+-- >>> nub []
+-- []
+-- >>> nub [1,2]
+-- [1,2]
+-- >>> nub [1,2,3,4,3,2,1,2,4,3,5]
+-- [1,2,3,4,5]
 nub :: Eq a => [a] -> [a]
-nub = undefined
+nub = foldl nub' [] where
+  nub' acc x = if elem x acc then acc else acc <> [x]
 
+-- -- |
+-- >>> delete 'a' ""
+-- ""
+-- >>> delete 'a' "b"
+-- "b"
+-- >>> delete 'a' "banana"
+-- "bnana"
 delete :: Eq a => a -> [a] -> [a]
-delete = undefined
+delete _ [] = []
+delete x (y:ys) = if x == y then ys else y:(delete x ys)
 
+-- -- |
+-- prop> (xs ++ ys) \\ xs == ys
+-- >>> "Hello World!" \\ "ell W"
+-- "Hoorld!"
 (\\) :: Eq a => [a] -> [a] -> [a]
-(\\) = undefined
+(\\) = foldr delete
 
 infix 5 \\
 
+-- -- |
+-- >>> union "" ""
+-- ""
+-- >>> union "b" ""
+-- "b"
+-- >>> union "" "abc"
+-- "abc"
+-- >>> "dog" `union` "cow"
+-- "dogcw"
 union :: Eq a => [a] -> [a] -> [a]
-union = undefined
+union = foldl ins where
+  ins xs y = if elem y xs then xs else xs <> [y] 
 
+-- -- |
+-- >>> [1,2,3,4] `intersect` [2,4,6,8]
+-- [2,4]
+-- >>> [1,2,2,3,4] `intersect` [6,4,4,2]
+-- [2,2,4]
 intersect :: Eq a => [a] -> [a] -> [a]
-intersect = undefined
+intersect xs ys = foldr ins [] xs where
+  ins x acc = if elem x ys then x:acc else acc
 
+-- -- |
+-- >>> sort []
+-- []
+-- >>> sort [1,6,4,3,2,5]
+-- [1,2,3,4,5,6]
+-- >>> sort [1,6,4,9,12,3,2,5]
+-- [1,2,3,4,5,6,9,12]
 sort :: Ord a => [a] -> [a]
-sort = undefined
+sort [] = []
+sort (x:xs) = left xs <> (x:(right xs)) where
+  left xs = sort $ filter (<= x) xs
+  right xs = sort $ filter (> x) xs
 
+-- -- |
+-- >>> sortBy (\(a,_) (b,_) -> compare a b) [(2, "world"), (4, "!"), (1, "Hello")]
+-- [(1,"Hello"),(2,"world"),(4,"!")]
+-- >>> sortBy compare [1,6,4,3,2,5]
+-- [1,2,3,4,5,6]
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
-sortBy = undefined
+sortBy _ [] = []
+sortBy f (x:xs) = left xs <> (x:(right xs)) where
+  left xs = sortBy f $ filter (\a -> f a x <= EQ) xs
+  right xs = sortBy f $ filter (\a -> f a x == GT) xs
 
 -- | 追加练习
 -- 访问以下 url：
