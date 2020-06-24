@@ -94,7 +94,7 @@ liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
 liftA3 fabcd apa apb apc = liftA2 fabcd apa apb <*> apc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) = const 
+(<*) = liftA2 const 
 
 infixl 4 <*
 
