@@ -16,6 +16,7 @@ module My.Control.Applicative
   )
 where
 
+import qualified Prelude as P
 import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
@@ -84,39 +85,69 @@ prop_Applicative_Inter fab y = (u <*> pure y) == (pure ($ y) <*> u)
     u = applyFun <$> fab
 
 liftA :: Applicative f => (a -> b) -> f a -> f b
-liftA = undefined
+liftA fab apa = pure fab <*> apa
 
 liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-liftA2 = undefined
+liftA2 fabc apa apb = liftA fabc apa <*> apb 
 
 liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-liftA3 = undefined
+liftA3 fabcd apa apb apc = liftA2 fabcd apa apb <*> apc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) = undefined
+(<*) = liftA2 const 
 
 infixl 4 <*
 
 (*>) :: Applicative f => f a -> f b -> f b
-(*>) = undefined
+(*>) = flip (<*)
 
 infixl 4 *>
 
 (<**>) :: Applicative f => f a -> f (a -> b) -> f b
-(<**>) = undefined
+(<**>) = flip (<*>)
 
 infixl 4 <**>
 
-instance Applicative ((->) a)
-
--- pure :: b -> (a -> b)
--- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+instance Applicative ((->) a) where
+  -- pure :: b -> (a -> b)
+  pure = const
+  -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+  (fabc <*> fab) a = (fabc a) (fab a)
 
 -- newtype ZipList a
 --   = ZipList
 --       { getZipList :: [a]
 --       }
 
-instance Functor ZipList
+-- --|
+-- prop> prop_Functor_Comp @ZipList
+-- prop> prop_Functor_Id @ZipList
+instance Functor ZipList where
+  -- fmap :: (a -> b) -> ZipList a -> ZipList b
+  fmap = zipMap
 
-instance Applicative ZipList
+zipMap :: (a -> b) -> ZipList a -> ZipList b
+zipMap f (ZipList xs) = ZipList (reverse $ go f xs []) where
+  go f xs acc = case xs of 
+    [] -> acc
+    x:xs -> go f xs ((f x):acc)
+
+reverse :: [a] -> [a]
+reverse xs = go xs [] where
+  go xs acc = case xs of
+    [] -> acc
+    x:xs -> go xs (x:acc)
+
+-- |
+-- prop> prop_Applicative_Id @ZipList
+-- prop> prop_Applicative_Comp @ZipList
+-- -- prop> prop_Applicative_Homo @ZipList Proxy
+-- prop> prop_Applicative_Inter @ZipList 
+instance Applicative ZipList where
+  -- pure :: a -> ZipList a
+  pure x = ZipList $ P.repeat x
+  -- <*> :: ZipList (a -> b) -> ZipList a -> ZipList b
+  ZipList [] <*> _ = ZipList []
+  _ <*> ZipList [] = ZipList []
+  ZipList (f:fs) <*> ZipList (x:xs) = ZipList ((f x): getZipList (ZipList fs <*> ZipList xs))
+    

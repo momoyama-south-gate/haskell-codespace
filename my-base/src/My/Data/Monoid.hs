@@ -10,6 +10,7 @@ where
 
 import My.Data.Semigroup
 import My.Prelude.Internal
+import My.Data.Function
 
 class Semigroup a => Monoid a where
   mempty :: a
@@ -27,7 +28,12 @@ prop_Monoid_RightId :: forall a. (Eq a, Monoid a) => a -> Bool
 prop_Monoid_RightId a = a <> mempty == a
 
 mconcat :: Monoid a => [a] -> a
-mconcat = undefined
+mconcat [] = mempty
+mconcat (x:xs) = x <> (mconcat xs)
 
-instance Monoid b => Monoid (a -> b)
+instance Monoid b => Monoid (a -> b) where
 -- mempty :: a -> b
+  mempty = const mempty
+
+instance Num a => Monoid (Sum a) where
+  mempty = Sum 0
