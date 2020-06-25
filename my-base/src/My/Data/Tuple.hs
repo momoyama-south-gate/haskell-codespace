@@ -11,7 +11,6 @@ import My.Control.Applicative
 import My.Control.Monad
 import My.Data.Proxy
 import My.Data.Functor
-import My.Data.Function
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
