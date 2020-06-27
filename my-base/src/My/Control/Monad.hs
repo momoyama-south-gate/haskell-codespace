@@ -83,7 +83,7 @@ infixr 1 <=<
 forever :: Applicative f => f a -> f b
 forever = undefined
 
-filterM :: Applicative f => (a -> f Bool) -> f a -> f [a]
+filterM :: Applicative f => (a -> f Bool) -> [a] -> f [a]
 filterM = undefined
 
 filterM_ :: Applicative f => (a -> f Bool) -> f a -> f ()
