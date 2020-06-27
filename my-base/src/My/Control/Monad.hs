@@ -78,6 +78,8 @@ infixr 1 >=>
 (<=<) :: Monad m => (b -> m c) -> (a -> m b) -> (a -> m c)
 (<=<) = undefined
 
+infixr 1 <=<
+
 forever :: Applicative f => f a -> f b
 forever = undefined
 
@@ -110,3 +112,5 @@ when = undefined
 
 unless :: Applicative f => Bool -> f () -> f ()
 unless = undefined
+
+instance Monad ((->) r)
