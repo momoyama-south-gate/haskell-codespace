@@ -8,6 +8,7 @@ module My.Data.Tuple
 where
 
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
@@ -35,3 +36,5 @@ instance (Monoid a, Monoid b) => Monoid (a, b)
 instance Functor ((,) a)
 
 instance Monoid a => Applicative ((,) a)
+
+instance Monoid a => Monad ((,) a)

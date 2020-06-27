@@ -13,6 +13,7 @@ where
 
 import Data.Either as X (Either (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Function
 import My.Data.Functor
 import My.Data.Semigroup
@@ -47,3 +48,5 @@ instance Semigroup (Either a b)
 instance Functor (Either e)
 
 instance Applicative (Either e)
+
+instance Monad (Either e)

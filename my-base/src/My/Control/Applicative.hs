@@ -2,6 +2,7 @@
 
 module My.Control.Applicative
   ( module X,
+    Alternative (..),
     Applicative (..),
     prop_Applicative_Id,
     prop_Applicative_Comp,
@@ -10,6 +11,8 @@ module My.Control.Applicative
     liftA,
     liftA2,
     liftA3,
+    many,
+    some,
     (<*),
     (*>),
     (<**>),
@@ -120,3 +123,43 @@ instance Applicative ((->) a)
 instance Functor ZipList
 
 instance Applicative ZipList
+
+class Applicative f => Alternative f where
+  empty :: f a
+  (<|>) :: f a -> f a -> f a
+
+infixl 3 <|>
+
+-- | Alternative 法则
+
+-- | 左同一律（left identity）
+-- empty <|> u 等于 u
+prop_Alternative_Left_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Left_Id u = (empty <|> u) == u
+
+-- | 右同一律（right identity）
+-- u <|> empty 等于 u
+prop_Alternative_Right_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Right_Id u = (u <|> empty) == u
+
+-- | 结合律（associativity）
+-- u <|> (v <|> w) 等于 (u <|> v) <|> w
+prop_Alternative_Assoc ::
+  forall f a.
+  (Alternative f, Eq (f a)) =>
+  f a ->
+  f a ->
+  f a ->
+  Bool
+prop_Alternative_Assoc u v w = left == right
+  where
+    left = u <|> (v <|> w)
+    right = (u <|> v) <|> w
+
+some :: Alternative f => f a -> f [a]
+some = undefined
+
+many :: Alternative f => f a -> f [a]
+many = undefined
+
+instance Alternative ZipList
