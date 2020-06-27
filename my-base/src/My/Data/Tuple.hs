@@ -55,7 +55,5 @@ instance Functor ((,) a) where
 instance Monoid a => Applicative ((,) a) where
   -- pure :: b -> (a, b)
   pure x = (mempty, x)
-
-instance Monoid a => Monad ((,) a)
   -- <*> :: (a,(b -> c)) -> (a,b) -> (a,c)
   (a1,f) <*> (a2,b) = ((a1 <> a2), (f b))
