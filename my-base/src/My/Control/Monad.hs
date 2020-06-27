@@ -83,7 +83,7 @@ infixr 1 <=<
 forever :: Applicative f => f a -> f b
 forever = undefined
 
-filterM :: Applicative f => (a -> f Bool) -> m a -> m a
+filterM :: Applicative f => (a -> f Bool) -> f a -> f a
 filterM = undefined
 
 filterM_ :: Applicative f => (a -> f Bool) -> f a -> f ()
@@ -92,10 +92,10 @@ filterM_ = undefined
 mapAndUnzipM :: Applicative f => (a -> f (b, c)) -> [a] -> f ([b], [c])
 mapAndUnzipM = undefined
 
-zipWithM :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> m [c]
+zipWithM :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f [c]
 zipWithM = undefined
 
-zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> m ()
+zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
 zipWithM_ = undefined
 
 replicateM :: Applicative f => Int -> f a -> f [a]
