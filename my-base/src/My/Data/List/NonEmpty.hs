@@ -5,6 +5,7 @@ where
 
 import Data.List.NonEmpty as X (NonEmpty (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Semigroup
 import My.Prelude.Internal
@@ -17,6 +18,8 @@ instance Semigroup (NonEmpty a)
 instance Functor NonEmpty
 
 instance Applicative NonEmpty
+
+instance Monad NonEmpty
 
 -- | 追加练习
 -- 访问以下 url：

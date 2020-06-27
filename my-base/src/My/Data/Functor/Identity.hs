@@ -5,6 +5,7 @@ where
 
 import Data.Functor.Identity as X (Identity (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
@@ -22,3 +23,5 @@ instance Monoid a => Monoid (Identity a)
 instance Functor Identity
 
 instance Applicative Identity
+
+instance Monad Identity

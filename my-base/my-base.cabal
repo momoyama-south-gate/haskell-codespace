@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.33.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9e85f45a54ffdd463a2c4b91796dc6a6359b13601c88bf72e91dd295ce7b56ea
+-- hash: d073642b5868680d3cad8995af5a4a5b84fa7050b0d842ce41032174889d2e9a
 
 name:           my-base
 version:        0.0.0
@@ -15,9 +15,11 @@ extra-source-files:
 library
   exposed-modules:
       My.Control.Applicative
+      My.Control.Monad
       My.Data.Either
       My.Data.Function
       My.Data.Functor
+      My.Data.Functor.Compose
       My.Data.Functor.Const
       My.Data.Functor.Identity
       My.Data.List
@@ -30,6 +32,7 @@ library
       My.Data.Void
       My.Prelude
       My.Prelude.Internal
+      My.System.IO
       My.Test.Arbitrary
       My.Test.Tutorial
   other-modules:

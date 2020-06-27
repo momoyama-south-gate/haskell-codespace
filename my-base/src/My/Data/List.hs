@@ -1,6 +1,7 @@
 module My.Data.List where
 
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Maybe
 import My.Data.Monoid
@@ -14,6 +15,10 @@ instance Monoid [a]
 instance Functor []
 
 instance Applicative []
+
+instance Alternative []
+
+instance Monad []
 
 (++) :: [a] -> [a] -> [a]
 (++) = undefined

@@ -13,6 +13,7 @@ where
 
 import Data.Maybe as X (Maybe (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
@@ -51,3 +52,7 @@ instance Semigroup a => Monoid (Maybe a)
 instance Functor Maybe
 
 instance Applicative Maybe
+
+instance Alternative Maybe
+
+instance Monad Maybe
