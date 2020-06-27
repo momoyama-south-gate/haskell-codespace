@@ -17,10 +17,10 @@ import My.Test.Arbitrary
 --       }
 
 instance Semigroup c => Semigroup (Const c a) where
-  (Const a) <> (Const b) = Const (a <> b)
+  Const a <> Const b = Const (a <> b)
 
 instance Monoid c => Monoid (Const c a) where
-  mempty = (Const mempty)
+  mempty = Const mempty
 
 instance Functor (Const c) where
-  fmap f (Const c)= (Const c)
+  fmap _ (Const c)= Const c

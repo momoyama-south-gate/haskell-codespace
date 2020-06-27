@@ -25,6 +25,7 @@ import My.Data.Functor
 import My.Data.Proxy
 import My.Prelude.Internal
 import My.Test.Arbitrary
+import qualified Prelude as P
 
 class Functor f => Applicative f where
   pure :: a -> f a
@@ -87,16 +88,16 @@ prop_Applicative_Inter fab y = (u <*> pure y) == (pure ($ y) <*> u)
     u = applyFun <$> fab
 
 liftA :: Applicative f => (a -> b) -> f a -> f b
-liftA f fa = ((pure f) <*> fa)
+liftA f fa = pure f <*> fa
 
 liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-liftA2 f fa fb = (liftA f fa) <*> fb
+liftA2 f fa fb = liftA f fa <*> fb
 
 liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-liftA3 f fa fb fc = (liftA2 f fa fb) <*> fc
+liftA3 f fa fb fc = liftA2 f fa fb <*> fc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) fa fb = fa
+(<*) fa _ = fa
 
 infixl 4 <*
 
@@ -112,7 +113,7 @@ infixl 4 <**>
 
 instance Applicative ((->) a) where
   pure b = (\_ -> b)
-  (<*>) fab fa = (\a -> ((fab a) (fa a)))
+  (<*>) fab fa = \a -> (fab a) (fa a)
 -- pure :: b -> (a -> b)
 -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
 -- ((a->b) -> (a->c)) -> (a->b) -> (a->c)
@@ -131,18 +132,20 @@ instance Functor ZipList where
         [] -> []
         a : tl -> (f a) : (map f tl)
 
+-- |
+-- prop> prop_Applicative_Id @ZipList
+-- prop> prop_Applicative_Comp @ZipList
+-- prop> prop_Applicative_Inter @ZipList
 instance Applicative ZipList where
-  pure = (\a -> ZipList [a]) 
+  pure a = ZipList $ P.repeat a 
 -- pure :: a -> f a
-  (<*>) (ZipList lf) (ZipList la) =
-    let
+  (<*>) (ZipList lf) (ZipList la) = ZipList $ zipf lf la
+    where
       zipf :: [a -> b] -> [a] -> [b]
       zipf lf la =
         case (lf, la) of
-          (headf:tailf, heada:taila) -> (headf heada) : (zipf tailf taila)
-          _ -> []
-    in
-      ZipList $ zipf lf la
+          (headf:tailf, heada:taila) -> headf heada : zipf tailf taila
+          _ -> []  
 -- (<*>) :: ZipList(a->b) -> ZipList a -> ZipList b
 
 class Applicative f => Alternative f where
@@ -184,3 +187,4 @@ many :: Alternative f => f a -> f [a]
 many = undefined
 
 instance Alternative ZipList
+-- [a -> b]

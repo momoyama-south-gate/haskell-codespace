@@ -51,10 +51,7 @@ isLeft eab =
     _ -> False
 
 isRight :: Either a b -> Bool
-isRight eab =
-  case eab of
-    Right a -> True
-    _ -> False
+isRight eab = not $ isLeft eab
 
 fromLeft :: a -> Either a b -> a
 fromLeft a1 eab =
@@ -83,8 +80,7 @@ partitionEithers l =
 instance Semigroup (Either a b) where
   Left a <> Left b = Left a
   Left a <> Right b = Right b
-  Right a <> Left b = Right a
-  Right a <> Right b = Right a
+  Right a <> _ = Right a
 
 instance Functor (Either e) where
   fmap f eb =

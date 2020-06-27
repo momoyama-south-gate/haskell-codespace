@@ -18,6 +18,7 @@ import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
+import My.Data.Function
 
 -- data Maybe a = Nothing | Just a
 
@@ -27,44 +28,37 @@ maybe b f ma =
     Nothing -> b
 
 isJust :: Maybe a -> Bool
-isJust ma =
-  case ma of
-    Just a -> True
-    Nothing -> False
+isJust (Just a) = True
+isJust _ = False
 
 isNothing :: Maybe a -> Bool
-isNothing ma =
-  case ma of
-    Just a -> False
-    Nothing -> True
+isNothing ma = not $ isJust ma
 
 fromMaybe :: a -> Maybe a -> a
-fromMaybe a1 ma =
-  case ma of
-    Just a -> a
-    _ -> a1
+fromMaybe _ (Just a) = a
+fromMaybe a1 _ = a1
 
 listToMaybe :: [a] -> Maybe a
 listToMaybe l =
   case l of
     [] -> Nothing
-    a : tl -> Just a
+    a : _ -> Just a
 
 maybeToList :: Maybe a -> [a]
-maybeToList ma =
-  case ma of
-    Just a -> [a]
-    Nothing -> []
+maybeToList (Just a) = [a]
+maybeToList _ = []
 
+-- |
+-- >>> catMaybes [Just 1, Just 2, Nothing]
+-- [1,2]
+-- >>> catMaybes []
+-- []
+-- >>> catMaybes [Nothing, Just 1, Just 2]
+-- [1,2]
 catMaybes :: [Maybe a] -> [a]
-catMaybes l =
-  case l of
-    [] -> []
-    ma : tl ->
-      case ma of
-        Just a -> a : (catMaybes tl)
-        Nothing -> (catMaybes tl)
-
+catMaybes [] = []
+catMaybes (Just a : tl) = a : catMaybes tl
+catMaybes (_ : tl) = catMaybes tl
 
 mapMaybe :: (a -> Maybe b) -> [a] -> [b]
 mapMaybe f l =
