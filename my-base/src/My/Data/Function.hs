@@ -18,7 +18,7 @@ identity a = a
 -- |
 -- prop> const "abc" 5 == "abc"
 const :: a -> b -> a
-const a b = a
+const a _ = a
 
 -- |
 -- prop> ((+1) ((*2) 2)) == ((+1) . (*2)) 2
@@ -43,6 +43,6 @@ infixr 0 $
 -- |
 -- prop> (*2) ((+1) 1) == (1 & (+1) & (*2))
 (&) :: a -> (a -> b) -> b
-(&) a fab = fab a
+(&) = flip ($)
 
 infixl 1 &
