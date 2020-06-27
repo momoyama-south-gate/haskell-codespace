@@ -35,7 +35,6 @@ instance Monad []
 (++) :: [a] -> [a] -> [a]
 (++) [] l = l
 (++) (h : tl) l = h : (tl ++ l)
-
 infixr 5 ++
 
 head :: [a] -> Maybe a

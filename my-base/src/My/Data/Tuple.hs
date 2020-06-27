@@ -21,6 +21,7 @@ import Data.Functor.Identity
 
 fst :: (a, b) -> a
 <<<<<<< HEAD
+<<<<<<< HEAD
 fst (a, _) = a
 
 snd :: (a, b) -> b
@@ -31,6 +32,12 @@ fst (a, b) = a
 snd :: (a, b) -> b
 snd (a, b) = b
 >>>>>>> code move
+=======
+fst (a, _) = a
+
+snd :: (a, b) -> b
+snd (_, b) = b
+>>>>>>> homework2
 
 curry :: ((a, b) -> c) -> a -> b -> c
 curry f a b = f (a, b)
@@ -59,10 +66,11 @@ instance Functor ((,) a) where
 instance Monoid a => Applicative ((,) a) where
   pure b = (mempty, b)
 -- pure :: a -> f a
-  (<*>) (x, f) (y, a) = (x <> y, f a) 
 -- <*> :: (a, (b -> c)) -> (a, b) -> (a, c)
 -- u <*> pure y = pure ($ y) <*> u
 -- lhs = (1, const 0) <*> (0, 0) = (0, 0)
 -- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
+  (<*>) fbc fb = (fst fbc, (snd fbc) (snd fb)) 
+-- <*> :: (a, (b -> c)) -> (a, b) -> (a, c)
 
 instance Monoid a => Monad ((,) a)

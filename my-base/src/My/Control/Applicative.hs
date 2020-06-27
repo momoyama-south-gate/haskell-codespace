@@ -202,3 +202,4 @@ many :: Alternative f => f a -> f [a]
 many = undefined
 
 instance Alternative ZipList
+-- [a -> b]
