@@ -285,7 +285,7 @@ words :: String -> [String]
 words [] = []
 words s = fst r : (words $ snd $ break f (snd r))
   where
-    f = not . isSpace
+    f = \x -> x/= '\n' && x/=' '
     r = span f s
 
 -- |
@@ -373,7 +373,7 @@ sort [] = []
 sort l = sortBy compare l
 
 -- |
--- >>> sortBy (compare) [1,6,4,3,2,5]
+-- >>> sort_by (>) [1,6,4,3,2,5]
 -- [1,2,3,4,5,6]
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
 sortBy _ [] = []
