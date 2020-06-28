@@ -373,7 +373,7 @@ sort [] = []
 sort l = sortBy compare l
 
 -- |
--- >>> sort_by (>) [1,6,4,3,2,5]
+-- >>> sortBy (compare) [1,6,4,3,2,5]
 -- [1,2,3,4,5,6]
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
 sortBy _ [] = []
