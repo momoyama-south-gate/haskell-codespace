@@ -122,17 +122,29 @@ drop n (_ : tl) = drop (n-1) tl
 -- ([1],[])
 -- >>> span (>0) [1,-2]
 -- ([1],[-2])
+-- >>> span (\x -> x/='\n') "ads"
+-- ("ads","")
+-- >>> span (\x -> x/='\n') "ads\nasdff\nasdf"
+-- ("ads","\nasdff\nasdf")
 span :: (a -> Bool) -> [a] -> ([a], [a])
 span f [] = ([], [])
 span f (hd : tl) = 
   if f hd 
   then (hd : fst other, snd other)
-  else (fst other, hd : snd other)
+  else ([], hd : tl)
      where
        other = span f tl
-
+-- |
+-- >>> break (>5) [1..10]
+-- ([1,2,3,4,5],[6,7,8,9,10])
 break :: (a -> Bool) -> [a] -> ([a], [a])
-break f l = swap $ span f l
+break f [] = ([], [])
+break f (hd : tl) =
+  if f hd
+  then ([], hd : tl)
+  else (hd : fst other, snd other)
+    where
+       other = break f tl
 
 -- |
 -- >>> elem 1 []
@@ -174,55 +186,194 @@ filter f (hd : tl) =
 partition :: (a -> Bool) -> [a] -> ([a], [a])
 partition = span
 
+-- |
+-- >>> [1,2,3] !! 0
+-- Just 1
+-- >>> [1,2,3] !! 2
+-- Just 3
+-- >>> [1,2,3] !! 3
+-- Nothing
+-- >>> [1,2,3] !! (-1)
+-- Nothing
 (!!) :: [a] -> Int -> Maybe a
-(!!) = undefined
+(!!) [] _ = Nothing
+(!!) (a : tl) n =
+  if n < 0
+  then Nothing
+  else if n == 0
+  then Just a
+  else (!!) tl (n-1)
 
 infixl 9 !!
 
+-- |
+-- >>> zip [] [1]
+-- []
+-- >>> zip [1] [1]
+-- [(1,1)]
+-- >>> zip [1,2] [1]
+-- [(1,1)]
+-- >>> zip [1] [1,2]
+-- [(1,1)]
+-- >>> zip [1] []
+-- []
 zip :: [a] -> [b] -> [(a, b)]
-zip = undefined
+zip _ [] = []
+zip [] _ = []
+zip (a : tla) (b: tlb) = (a, b) : zip tla tlb 
 
+-- |
+-- >>> zipWith (+) [] [1]
+-- []
+-- >>> zipWith (+) [1] [1]
+-- [2]
+-- >>> zipWith (+) [1,2] [1]
+-- [2]
+-- >>> zipWith (+) [1] [1,2]
+-- [2]
+-- >>> zipWith (+) [1] []
+-- []
 zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-zipWith = undefined
+zipWith _ [] _ = []
+zipWith _ _ [] = []
+zipWith f (a:tla) (b:tlb) = f a b : zipWith f tla tlb
 
+-- |
+-- >>> unzip []
+-- ([],[])
+-- >>> unzip [(1,2)]
+-- ([1],[2])
 unzip :: [(a, b)] -> ([a], [b])
-unzip = undefined
+unzip [] = ([], [])
+unzip ((a, b) : tl) = (a : fst other, b : snd other)
+  where
+    other = unzip tl
 
+-- |
+-- >>> lines ""
+-- []
+-- >>> lines "abc\n"
+-- ["abc"]
+-- >>> lines "abc\ndec"
+-- ["abc","dec"]
 lines :: String -> [String]
-lines = undefined
-
+lines [] = []
+lines s = fst r : (lines $ snd $ break (/= '\n') (snd r))
+  where
+    r = span (/= '\n') s
+    
+-- |
+-- >>> words ""
+-- []
+-- >>> words "abc\n"
+-- ["abc"]
+-- >>> words "abc\ndec"
+-- ["abc","dec"]
+-- >>> words "abc "
+-- ["abc"]
+-- >>> words "abc dec"
+-- ["abc","dec"]
 words :: String -> [String]
-words = undefined
+words [] = []
+words s = fst r : (words $ snd $ break f (snd r))
+  where
+    f = \x -> x/= '\n' && x/=' '
+    r = span f s
 
+-- |
+-- >>> unlines []
+-- ""
+-- >>> unlines ["abc"]
+-- "abc\n"
+-- >>> unlines ["abc", "bcd"]
+-- "abc\nbcd\n"
 unlines :: [String] -> String
-unlines = undefined
+unlines [] = ""
+unlines (a : tl) = a <> "\n" <> unlines tl
 
+-- |
+-- >>> unwords []
+-- ""
+-- >>> unwords ["abc"]
+-- "abc"
+-- >>> unwords ["abc", "bcd"]
+-- "abc bcd"
 unwords :: [String] -> String
-unwords = undefined
+unwords [] = ""
+unwords (a : []) = a
+unwords (a : tl) = a <> " " <> unwords tl
 
+-- |
+-- >>> nub []
+-- []
+-- >>> nub [1,2,3]
+-- [1,2,3]
+-- >>> nub [1,1,2,2,3]
+-- [1,2,3]
 nub :: Eq a => [a] -> [a]
-nub = undefined
+nub l = foldl inlist [] l
+  where
+    inlist :: Eq a => [a] -> a -> [a]
+    inlist [] a = [a]
+    inlist (b : tl) a =
+      if a == b
+      then inlist tl a
+      else b : inlist tl a
 
+-- |
+-- >>> delete 1 []
+-- []
+-- >>> delete 1 [2,3]
+-- [2,3]
+-- >>> delete 1 [1,1,2,3]
+-- [1,2,3]
 delete :: Eq a => a -> [a] -> [a]
-delete = undefined
+delete _ [] = []
+delete a (b : tl) =
+  if a == b
+  then tl
+  else b : delete a tl
 
+-- |
+-- >>> "Hello World!" \\ "ell W"
+-- "Hoorld!"
 (\\) :: Eq a => [a] -> [a] -> [a]
-(\\) = undefined
+(\\) l1 [] = l1
+(\\) l1 (a: tl) = (delete a l1) \\ tl
 
 infix 5 \\
 
+-- |
+-- >>> union "dog" "cow"
+-- "dogcw"
 union :: Eq a => [a] -> [a] -> [a]
-union = undefined
+union l1 l2 = foldr (\x l -> x : delete x l) l2 l1
 
+-- |
+-- >>> [1,2,3,4] `intersect` [2,4,6,8]
+-- [2,4]
+-- >>> [1,2,2,3,4] `intersect` [6,4,4,2]
+-- [2,2,4]
 intersect :: Eq a => [a] -> [a] -> [a]
-intersect = undefined
+intersect l1 l2 = foldr (\x l -> if elem x l2 then x : l else l) [] l1
 
+-- |
+-- >>> sort [1,6,4,3,2,5]
+-- [1,2,3,4,5,6]
 sort :: Ord a => [a] -> [a]
-sort = undefined
+sort [] = []
+sort (a : tl) = sort first <> (a : sort second)
+  where
+    (first, second) = partition (< a) tl
 
+-- |
+-- >>> sort_by (>) [1,6,4,3,2,5]
+-- [1,2,3,4,5,6]
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
-sortBy = undefined
-
+sortBy _ [] = []
+sortBy f (a : tl) = sortBy f first <> (a : sortBy f second)
+  where
+    (first, second) = partition (\x -> f x a == LT) tl
 -- | 追加练习
 -- 访问以下 url：
 -- http://hackage.haskell.org/package/base-4.14.0.0/docs/Data-List.html
