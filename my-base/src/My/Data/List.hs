@@ -362,12 +362,10 @@ intersect l1 l2 = foldr (\x l -> if elem x l2 then x : l else l) [] l1
 -- [1,2,3,4,5,6]
 sort :: Ord a => [a] -> [a]
 sort [] = []
-sort (a : tl) = sort first <> (a : sort second)
-  where
-    (first, second) = partition (< a) tl
+sort l = sortBy (compare) l
 
 -- |
--- >>> sort_by (>) [1,6,4,3,2,5]
+-- >>> sortBy (compare) [1,6,4,3,2,5]
 -- [1,2,3,4,5,6]
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
 sortBy _ [] = []
