@@ -18,7 +18,6 @@ infixr 6 <>
 
 -- | 结合律（associativity）
 -- a <> (b <> c) 等于 (a <> b) <> c
--- buhuixie
 prop_Semigroup_Assoc :: forall a. (Eq a, Semigroup a) => a -> a -> a -> Bool
 prop_Semigroup_Assoc a b c = (a <> b) <> c == a <> (b <> c)
 

@@ -35,6 +35,7 @@ instance Monad []
 (++) :: [a] -> [a] -> [a]
 (++) [] l = l
 (++) (h : tl) l = h : (tl ++ l)
+
 infixr 5 ++
 
 head :: [a] -> Maybe a
@@ -285,7 +286,7 @@ words :: String -> [String]
 words [] = []
 words s = fst r : (words $ snd $ break f (snd r))
   where
-    f = \x -> x/= '\n' && x/=' '
+    f = not . isSpace
     r = span f s
 
 -- |

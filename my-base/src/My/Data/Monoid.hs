@@ -41,7 +41,6 @@ mconcat :: Monoid a => [a] -> a
 mconcat l =
   case l of
     [] -> mempty
-    x : xs -> x <> (mconcat xs)
 
 instance Monoid b => Monoid (a -> b) where
   mempty _ = mempty

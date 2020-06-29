@@ -63,7 +63,6 @@ catMaybes (_ : tl) = catMaybes tl
 
 mapMaybe :: (a -> Maybe b) -> [a] -> [b]
 mapMaybe f l = catMaybes $ P.map f l
-    a : tl -> Just a
 
 instance Semigroup a => Semigroup (Maybe a) where
   Just a <> Nothing = Just a
