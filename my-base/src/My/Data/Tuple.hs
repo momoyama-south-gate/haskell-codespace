@@ -29,7 +29,7 @@ curry :: ((a, b) -> c) -> a -> b -> c
 curry f a b = f (a, b)
 
 uncurry :: (a -> b -> c) -> (a, b) -> c
-uncurry f (a, b)= f a b
+uncurry f (a, b) = f a b
 
 swap :: (a, b) -> (b, a)
 swap (a, b) = (b, a)
@@ -41,13 +41,21 @@ instance (Monoid a, Monoid b) => Monoid (a, b) where
   mempty = (mempty, mempty)
 
 instance Functor ((,) a) where
-  fmap f fa = (fst fa, f $ snd fa)
+  fmap f (a, b) = (a, f b)
 -- fmap::(a -> b)-> f a -> f b
 
+-- |
+-- prop> prop_Applicative_Id @((,) (Sum Int))
+-- prop> prop_Applicative_Comp @((,) (Sum Int))
+-- prop> prop_Applicative_Homo @((,) (Sum Int)) Proxy
+-- prop> prop_Applicative_Inter @((,) (Sum Int))
 instance Monoid a => Applicative ((,) a) where
   pure b = (mempty, b)
 -- pure :: a -> f a
-  (<*>) fbc fb = (fst fbc, (snd fbc) (snd fb)) 
+  (<*>) (x, f) (y, a) = (x <> y, f a) 
 -- <*> :: (a, (b -> c)) -> (a, b) -> (a, c)
+-- u <*> pure y = pure ($ y) <*> u
+-- lhs = (1, const 0) <*> (0, 0) = (0, 0)
+-- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
 
 instance Monoid a => Monad ((,) a)

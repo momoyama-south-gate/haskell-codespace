@@ -16,7 +16,7 @@ import qualified Prelude as P
 -- infixr 5 :|
 
 instance Semigroup (NonEmpty a) where
-  (<>) (a :| ta) ( b :| tb) = a :| (ta ++ (b : tb)) 
+  (a :| ta) <> (b :| tb) = a :| (ta ++ (b : tb)) 
 
 instance Functor NonEmpty where
   fmap f (a :| ta) = (f a) :| (fmap f ta) 

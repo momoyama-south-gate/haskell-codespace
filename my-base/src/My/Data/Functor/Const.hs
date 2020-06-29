@@ -23,4 +23,4 @@ instance Monoid c => Monoid (Const c a) where
   mempty = Const mempty
 
 instance Functor (Const c) where
-  fmap _ (Const c)= Const c
+  fmap _ (Const c) = Const c
