@@ -19,6 +19,7 @@ import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
 import My.Data.Function
+import qualified Prelude as P
 
 -- data Maybe a = Nothing | Just a
 
@@ -28,7 +29,7 @@ maybe b f ma =
     Nothing -> b
 
 isJust :: Maybe a -> Bool
-isJust (Just a) = True
+isJust (Just _) = True
 isJust _ = False
 
 isNothing :: Maybe a -> Bool
@@ -61,13 +62,7 @@ catMaybes (Just a : tl) = a : catMaybes tl
 catMaybes (_ : tl) = catMaybes tl
 
 mapMaybe :: (a -> Maybe b) -> [a] -> [b]
-mapMaybe f l =
-  case l of
-    [] -> []
-    a : tl ->
-      case (f a) of
-        Just b -> b : (mapMaybe f tl)
-        Nothing -> mapMaybe f tl
+mapMaybe f l = catMaybes $ P.map f l
 
 instance Semigroup a => Semigroup (Maybe a) where
   Just a <> Nothing = Just a

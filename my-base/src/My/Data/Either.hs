@@ -21,61 +21,42 @@ import My.Prelude.Internal
 import My.Data.Tuple
 
 either :: (a -> c) -> (b -> c) -> Either a b -> c
-either fa fb eab =
-  case eab of
-    Left a -> fa a
-    Right b -> fb b
+either fa _ (Left a) = fa a
+either _ fb (Right b) = fb b
 
 lefts :: [Either a b] -> [a]
-lefts l =
-  case l of
-    [] -> []
-    eab : tl ->
-      case eab of
-        Left a -> a : lefts tl
-        _ -> lefts tl
+lefts [] = []
+lefts (Left a : tl) = a : lefts tl
+lefts (_ : tl) = lefts tl
 
 rights :: [Either a b] -> [b]
-rights l =
-  case l of
-    [] -> []
-    eab : tl ->
-      case eab of
-        Right b -> b : rights tl
-        _ -> rights tl
+rights [] = []
+rights (Right b : tl) = b : rights tl
+rights (_ : tl) = rights tl
 
 isLeft :: Either a b -> Bool
-isLeft eab =
-  case eab of
-    Left a -> True
-    _ -> False
+isLeft (Left _) = True
+isLeft _ = False
 
 isRight :: Either a b -> Bool
-isRight eab = not $ isLeft eab
+isRight = not . isLeft
 
 fromLeft :: a -> Either a b -> a
-fromLeft a1 eab =
-  case eab of
-    Left a -> a
-    _ -> a1
+fromLeft _ (Left a) = a
+fromLeft a _ = a
 
 fromRight :: b -> Either a b -> b
-fromRight b1 eab =
-  case eab of
-    Right b -> b
-    _ -> b1
+fromRight _ (Right b) = b
+fromRight b _ = b
 
 partitionEithers :: [Either a b] -> ([a], [b])
-partitionEithers l =
-  case l of
-    [] -> ([], [])
-    eab : tl ->
-      let
-        other = partitionEithers tl
-      in
-        case eab of
-          Left a -> (a : (fst other), snd other)
-          Right b -> (fst other, b : (snd other))  
+partitionEithers [] = ([], [])
+partitionEithers (Left a : tl) = (a : first, second)
+  where
+    (first, second) = partitionEithers tl
+partitionEithers (Right a : tl) = (first, a : second)
+  where
+    (first, second) = partitionEithers tl
 
 instance Semigroup (Either a b) where
   Left a <> Left b = Left a
@@ -83,10 +64,8 @@ instance Semigroup (Either a b) where
   Right a <> _ = Right a
 
 instance Functor (Either e) where
-  fmap f eb =
-    case eb of
-      Left e -> Left e
-      Right a -> Right (f a)
+  fmap _ (Left e) = Left e
+  fmap f (Right a) = Right (f a)
 
 instance Applicative (Either e) where
   pure = Right

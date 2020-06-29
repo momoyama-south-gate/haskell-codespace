@@ -97,7 +97,7 @@ liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
 liftA3 f fa fb fc = liftA2 f fa fb <*> fc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) fa _ = fa
+(<*) fa fb = fmap const fa <*> fb
 
 infixl 4 <*
 
@@ -112,7 +112,7 @@ infixl 4 *>
 infixl 4 <**>
 
 instance Applicative ((->) a) where
-  pure b = (\_ -> b)
+  pure b = \_ -> b
   (<*>) fab fa = \a -> (fab a) (fa a)
 -- pure :: b -> (a -> b)
 -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
@@ -148,6 +148,9 @@ instance Applicative ZipList where
           _ -> []  
 -- (<*>) :: ZipList(a->b) -> ZipList a -> ZipList b
 
+-- class Monoid a where
+--   mempty :: a
+--   (<>) :: a -> a -> a
 class Applicative f => Alternative f where
   empty :: f a
   (<|>) :: f a -> f a -> f a
@@ -180,11 +183,18 @@ prop_Alternative_Assoc u v w = left == right
     left = u <|> (v <|> w)
     right = (u <|> v) <|> w
 
+-- some parseInt "123abc"
+-- pure [1, 2, 3]
+-- some parseInt "abc"
+-- empty
 some :: Alternative f => f a -> f [a]
 some = undefined
 
+-- many parseInt "123abc"
+-- pure [1, 2, 3]
+-- many parseInt "abc"
+-- pure []
 many :: Alternative f => f a -> f [a]
 many = undefined
 
 instance Alternative ZipList
--- [a -> b]

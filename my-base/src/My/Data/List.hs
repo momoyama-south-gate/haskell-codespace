@@ -1,5 +1,6 @@
 module My.Data.List where
 
+import Data.Char (isSpace)
 import My.Control.Applicative
 import My.Control.Monad
 import My.Data.Functor
@@ -32,25 +33,19 @@ instance Alternative []
 instance Monad []
 
 (++) :: [a] -> [a] -> [a]
-(++) l1 l2 =
-  case (l1, l2) of
-    ([], _) -> l2
-    (h1: t1, _) -> h1 : (t1 ++ l2)
+(++) [] l = l
+(++) (h : tl) l = h : (tl ++ l)
 
 infixr 5 ++
 
 head :: [a] -> Maybe a
-head l =
-  case l of
-    [] -> Nothing
-    a : _ -> Just a
+head [] = Nothing
+head (a : _) = Just a
 
 last :: [a] -> Maybe a
-last l =
-  case l of
-    [] -> Nothing
-    a : [] -> Just a
-    _: tl -> last tl
+last [] = Nothing
+last [a] = Just a
+last (_ : tl) = last tl
 
 tail :: [a] -> Maybe [a]
 tail [] = Nothing
@@ -58,10 +53,10 @@ tail (_ : tl) = Just tl
 
 init :: [a] -> Maybe [a]
 init [] = Nothing
-inti (hd : tl) = Just (hd : fromMaybe [] (init tl))
+init (hd : tl) = Just (hd : fromMaybe [] (init tl))
 
 null :: [a] -> Bool
-null [ ]= False
+null [] = False
 null _ = True
 
 length :: [a] -> Int
@@ -122,6 +117,8 @@ drop n (_ : tl) = drop (n-1) tl
 -- ([1],[])
 -- >>> span (>0) [1,-2]
 -- ([1],[-2])
+-- >>> span (>0) [1, 2, -3, -4, 5, 6]
+-- ([1,2],[-3,-4,5,6])
 -- >>> span (\x -> x/='\n') "ads"
 -- ("ads","")
 -- >>> span (\x -> x/='\n') "ads\nasdff\nasdf"
@@ -134,6 +131,7 @@ span f (hd : tl) =
   else ([], hd : tl)
      where
        other = span f tl
+
 -- |
 -- >>> break (>5) [1..10]
 -- ([1,2,3,4,5],[6,7,8,9,10])
@@ -169,10 +167,9 @@ lookup a (hd : tl) =
 
 find :: (a -> Bool) -> [a] -> Maybe a
 find _ [] = Nothing
-find f (hd : tl) =
-  if f hd
-  then Just hd
-  else find f tl
+find f (hd : tl)
+  | f hd = Just hd
+  | otherwise = find f tl
 
 filter :: (a -> Bool) -> [a] -> [a]
 filter _ [] = []
@@ -183,8 +180,18 @@ filter f (hd : tl) =
     where
       other = filter f tl
 
+-- |
+-- >>> partition (>0) [1, 2, -3, -4, 5, 6]
+-- ([1,2,5,6],[-3,-4])
 partition :: (a -> Bool) -> [a] -> ([a], [a])
-partition = span
+partition _ [] = ([], [])
+partition f (a: tl) =
+  if f a
+  then (a : first, second)
+  else (first, a : second)
+    where
+      (first, second) = partition f tl
+
 
 -- |
 -- >>> [1,2,3] !! 0
@@ -197,12 +204,10 @@ partition = span
 -- Nothing
 (!!) :: [a] -> Int -> Maybe a
 (!!) [] _ = Nothing
-(!!) (a : tl) n =
-  if n < 0
-  then Nothing
-  else if n == 0
-  then Just a
-  else (!!) tl (n-1)
+(!!) (a : tl) n
+  | n < 0 = Nothing
+  | n == 0 = Just a
+  | otherwise = (!!) tl (n-1)
 
 infixl 9 !!
 
@@ -256,6 +261,8 @@ unzip ((a, b) : tl) = (a : fst other, b : snd other)
 -- ["abc"]
 -- >>> lines "abc\ndec"
 -- ["abc","dec"]
+-- >>> lines "\n"
+--[""]
 lines :: String -> [String]
 lines [] = []
 lines s = fst r : (lines $ snd $ break (/= '\n') (snd r))
@@ -273,11 +280,13 @@ lines s = fst r : (lines $ snd $ break (/= '\n') (snd r))
 -- ["abc"]
 -- >>> words "abc dec"
 -- ["abc","dec"]
+-- >>> words "abc\t\rdec\n"
+-- ["abc","dec"]
 words :: String -> [String]
 words [] = []
 words s = fst r : (words $ snd $ break f (snd r))
   where
-    f = \x -> x/= '\n' && x/=' '
+    f = not . isSpace
     r = span f s
 
 -- |
@@ -362,7 +371,7 @@ intersect l1 l2 = foldr (\x l -> if elem x l2 then x : l else l) [] l1
 -- [1,2,3,4,5,6]
 sort :: Ord a => [a] -> [a]
 sort [] = []
-sort l = sortBy (compare) l
+sort l = sortBy compare l
 
 -- |
 -- >>> sortBy (compare) [1,6,4,3,2,5]
