@@ -28,10 +28,19 @@ prop_Monoid_LeftId a = mempty <> a == a
 prop_Monoid_RightId :: forall a. (Eq a, Monoid a) => a -> Bool
 prop_Monoid_RightId a = a <> mempty == a
 
+-- |
+-- >>> mconcat [Sum 1, Sum 2, Sum 3]
+-- Sum {getSum = 6}
+-- >>> mconcat ([] :: [Sum a])
+-- Sum {getSum = 0}
+-- >>> mconcat ["a", "b", "c"]
+-- "abc"
+-- >>> mconcat ([] :: [String])
+-- ""
 mconcat :: Monoid a => [a] -> a
-mconcat [a] =
-  case [a] of
-    [] -> mempty a
+mconcat l =
+  case l of
+    [] -> mempty
     x : xs -> x <> (mconcat xs)
 
 instance Monoid b => Monoid (a -> b) where
@@ -40,3 +49,6 @@ instance Monoid b => Monoid (a -> b) where
 
 instance Num a => Monoid (Sum a) where
   mempty = Sum 0
+
+instance Monoid [a] where
+  mempty = []
