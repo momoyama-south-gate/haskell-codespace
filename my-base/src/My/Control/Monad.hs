@@ -86,9 +86,6 @@ forever = undefined
 filterM :: Applicative f => (a -> f Bool) -> [a] -> f [a]
 filterM = undefined
 
-filterM_ :: Applicative f => (a -> f Bool) -> f a -> f ()
-filterM_ = undefined
-
 mapAndUnzipM :: Applicative f => (a -> f (b, c)) -> [a] -> f ([b], [c])
 mapAndUnzipM = undefined
 
