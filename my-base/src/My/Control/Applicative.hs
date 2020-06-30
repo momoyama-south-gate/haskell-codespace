@@ -2,6 +2,7 @@
 
 module My.Control.Applicative
   ( module X,
+    Alternative (..),
     Applicative (..),
     prop_Applicative_Id,
     prop_Applicative_Comp,
@@ -10,6 +11,8 @@ module My.Control.Applicative
     liftA,
     liftA2,
     liftA3,
+    many,
+    some,
     (<*),
     (*>),
     (<**>),
@@ -22,6 +25,7 @@ import My.Data.Functor
 import My.Data.Proxy
 import My.Prelude.Internal
 import My.Test.Arbitrary
+import qualified Prelude as P
 
 class Functor f => Applicative f where
   pure :: a -> f a
@@ -84,39 +88,113 @@ prop_Applicative_Inter fab y = (u <*> pure y) == (pure ($ y) <*> u)
     u = applyFun <$> fab
 
 liftA :: Applicative f => (a -> b) -> f a -> f b
-liftA = undefined
+liftA f fa = pure f <*> fa
 
 liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-liftA2 = undefined
+liftA2 f fa fb = liftA f fa <*> fb
 
 liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-liftA3 = undefined
+liftA3 f fa fb fc = liftA2 f fa fb <*> fc
 
 (<*) :: Applicative f => f a -> f b -> f a
-(<*) = undefined
+(<*) fa fb = fmap const fa <*> fb
 
 infixl 4 <*
 
 (*>) :: Applicative f => f a -> f b -> f b
-(*>) = undefined
+(*>) = flip (<*)
 
 infixl 4 *>
 
 (<**>) :: Applicative f => f a -> f (a -> b) -> f b
-(<**>) = undefined
+(<**>) = flip (<*>)
 
 infixl 4 <**>
 
-instance Applicative ((->) a)
-
+instance Applicative ((->) a) where
+  pure b = \_ -> b
+  (<*>) fab fa = \a -> (fab a) (fa a)
 -- pure :: b -> (a -> b)
 -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+-- ((a->b) -> (a->c)) -> (a->b) -> (a->c)
 
 -- newtype ZipList a
 --   = ZipList
 --       { getZipList :: [a]
 --       }
 
-instance Functor ZipList
+instance Functor ZipList where
+  fmap f (ZipList l) = ZipList $ map f l 
+    where
+      map :: (a -> b) -> [a] -> [b]
+      map f l =
+        case l of
+        [] -> []
+        a : tl -> (f a) : (map f tl)
 
-instance Applicative ZipList
+-- |
+-- prop> prop_Applicative_Id @ZipList
+-- prop> prop_Applicative_Comp @ZipList
+-- prop> prop_Applicative_Inter @ZipList
+instance Applicative ZipList where
+  pure a = ZipList $ P.repeat a 
+-- pure :: a -> f a
+  (<*>) (ZipList lf) (ZipList la) = ZipList $ zipf lf la
+    where
+      zipf :: [a -> b] -> [a] -> [b]
+      zipf lf la =
+        case (lf, la) of
+          (headf:tailf, heada:taila) -> headf heada : zipf tailf taila
+          _ -> []  
+-- (<*>) :: ZipList(a->b) -> ZipList a -> ZipList b
+
+-- class Monoid a where
+--   mempty :: a
+--   (<>) :: a -> a -> a
+class Applicative f => Alternative f where
+  empty :: f a
+  (<|>) :: f a -> f a -> f a
+
+infixl 3 <|>
+
+-- | Alternative 法则
+
+-- | 左同一律（left identity）
+-- empty <|> u 等于 u
+prop_Alternative_Left_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Left_Id u = (empty <|> u) == u
+
+-- | 右同一律（right identity）
+-- u <|> empty 等于 u
+prop_Alternative_Right_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Right_Id u = (u <|> empty) == u
+
+-- | 结合律（associativity）
+-- u <|> (v <|> w) 等于 (u <|> v) <|> w
+prop_Alternative_Assoc ::
+  forall f a.
+  (Alternative f, Eq (f a)) =>
+  f a ->
+  f a ->
+  f a ->
+  Bool
+prop_Alternative_Assoc u v w = left == right
+  where
+    left = u <|> (v <|> w)
+    right = (u <|> v) <|> w
+
+-- some parseInt "123abc"
+-- pure [1, 2, 3]
+-- some parseInt "abc"
+-- empty
+some :: Alternative f => f a -> f [a]
+some = undefined
+
+-- many parseInt "123abc"
+-- pure [1, 2, 3]
+-- many parseInt "abc"
+-- pure []
+many :: Alternative f => f a -> f [a]
+many = undefined
+
+instance Alternative ZipList

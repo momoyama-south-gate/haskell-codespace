@@ -1,13 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module My.Data.Monoid
-  ( Monoid (..),
+  ( module X,
+    Monoid (..),
     prop_Monoid_LeftId,
     prop_Monoid_RightId,
     mconcat,
   )
 where
 
+import Data.Monoid as X (Sum(..))
 import My.Data.Semigroup
 import My.Prelude.Internal
 
@@ -26,8 +28,27 @@ prop_Monoid_LeftId a = mempty <> a == a
 prop_Monoid_RightId :: forall a. (Eq a, Monoid a) => a -> Bool
 prop_Monoid_RightId a = a <> mempty == a
 
+-- |
+-- >>> mconcat [Sum 1, Sum 2, Sum 3]
+-- Sum {getSum = 6}
+-- >>> mconcat ([] :: [Sum a])
+-- Sum {getSum = 0}
+-- >>> mconcat ["a", "b", "c"]
+-- "abc"
+-- >>> mconcat ([] :: [String])
+-- ""
 mconcat :: Monoid a => [a] -> a
-mconcat = undefined
+mconcat l =
+  case l of
+    [] -> mempty
+    x : xs -> x <> (mconcat xs)
 
-instance Monoid b => Monoid (a -> b)
+instance Monoid b => Monoid (a -> b) where
+  mempty _ = mempty
 -- mempty :: a -> b
+
+instance Num a => Monoid (Sum a) where
+  mempty = Sum 0
+
+instance Monoid [a] where
+  mempty = []

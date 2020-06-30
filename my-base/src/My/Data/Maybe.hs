@@ -13,41 +13,80 @@ where
 
 import Data.Maybe as X (Maybe (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
+import My.Data.Function
+import qualified Prelude as P
 
 -- data Maybe a = Nothing | Just a
 
-maybe :: b -> (a -> b) -> Maybe a -> b
-maybe = undefined
+maybe b f ma =
+  case ma of
+    Just a -> f a
+    Nothing -> b
 
 isJust :: Maybe a -> Bool
-isJust = undefined
+isJust (Just _) = True
+isJust _ = False
 
 isNothing :: Maybe a -> Bool
-isNothing = undefined
+isNothing ma = not $ isJust ma
 
 fromMaybe :: a -> Maybe a -> a
-fromMaybe = undefined
+fromMaybe _ (Just a) = a
+fromMaybe a1 _ = a1
 
 listToMaybe :: [a] -> Maybe a
-listToMaybe = undefined
+listToMaybe l =
+  case l of
+    [] -> Nothing
+    a : _ -> Just a
 
 maybeToList :: Maybe a -> [a]
-maybeToList = undefined
+maybeToList (Just a) = [a]
+maybeToList _ = []
 
+-- |
+-- >>> catMaybes [Just 1, Just 2, Nothing]
+-- [1,2]
+-- >>> catMaybes []
+-- []
+-- >>> catMaybes [Nothing, Just 1, Just 2]
+-- [1,2]
 catMaybes :: [Maybe a] -> [a]
-catMaybes = undefined
+catMaybes [] = []
+catMaybes (Just a : tl) = a : catMaybes tl
+catMaybes (_ : tl) = catMaybes tl
 
 mapMaybe :: (a -> Maybe b) -> [a] -> [b]
-mapMaybe = undefined
+mapMaybe f l = catMaybes $ P.map f l
 
-instance Semigroup a => Semigroup (Maybe a)
+instance Semigroup a => Semigroup (Maybe a) where
+  Just a <> Nothing = Just a
+  Just a <> Just b = Just (a <> b)
+  Nothing <> Just b = Just b
+  Nothing <> Nothing = Nothing
 
-instance Semigroup a => Monoid (Maybe a)
+instance Semigroup a => Monoid (Maybe a) where
+  mempty = Nothing
 
-instance Functor Maybe
+instance Functor Maybe where
+  fmap f ma =
+    case ma of
+      Just a -> Just (f a)
+      Nothing -> Nothing
 
-instance Applicative Maybe
+instance Applicative Maybe where
+  pure = Just
+  (<*>) mf ma =
+    case (mf,ma) of
+      (Just f, Just a) -> Just (f a)
+      _ -> Nothing
+-- <*>::f(a -> b) -> f a -> f b
+
+instance Alternative Maybe
+
+instance Monad Maybe

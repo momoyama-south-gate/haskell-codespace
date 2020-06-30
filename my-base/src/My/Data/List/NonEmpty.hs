@@ -5,18 +5,31 @@ where
 
 import Data.List.NonEmpty as X (NonEmpty (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Semigroup
 import My.Prelude.Internal
+import My.Data.List
+import qualified Prelude as P
 
 -- data NonEmpty a = a :| [a]
 -- infixr 5 :|
 
-instance Semigroup (NonEmpty a)
+instance Semigroup (NonEmpty a) where
+  (a :| ta) <> (b :| tb) = a :| (ta ++ (b : tb)) 
 
-instance Functor NonEmpty
+instance Functor NonEmpty where
+  fmap f (a :| ta) = (f a) :| (fmap f ta) 
 
-instance Applicative NonEmpty
+instance Applicative NonEmpty where
+  pure a = (a :| P.repeat a)
+  (<*>) nlf nla =
+    case (nlf, nla) of
+      (f :| _, a :| []) -> (f a :| [])
+      (f :| [], a :| _) -> (f a :| [])
+      (f :| tf, a :| ta) -> (f a :| (tf <*> ta))
+
+instance Monad NonEmpty
 
 -- | 追加练习
 -- 访问以下 url：

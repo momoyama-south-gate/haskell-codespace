@@ -16,8 +16,11 @@ import My.Test.Arbitrary
 --       { getConst :: c
 --       }
 
-instance Semigroup c => Semigroup (Const c a)
+instance Semigroup c => Semigroup (Const c a) where
+  Const a <> Const b = Const (a <> b)
 
-instance Monoid c => Monoid (Const c a)
+instance Monoid c => Monoid (Const c a) where
+  mempty = Const mempty
 
-instance Functor (Const c)
+instance Functor (Const c) where
+  fmap _ (Const c) = Const c
