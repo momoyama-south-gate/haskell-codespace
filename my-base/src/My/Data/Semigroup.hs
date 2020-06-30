@@ -27,3 +27,10 @@ instance Semigroup b => Semigroup (a -> b) where
 
 instance Num a => Semigroup (Sum a) where
   Sum n <> Sum m = Sum (n + m)
+
+instance Semigroup [a] where
+  (<>) = (++)
+    where
+      (++) :: [a] -> [a] -> [a]
+      (++) [] l = l
+      (++) (h : tl) l = h : (tl ++ l)
