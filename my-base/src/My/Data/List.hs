@@ -42,9 +42,15 @@ instance Applicative [] where
   _ <*> [] = []
   (f:fs) <*> xs = ( fmap f xs ) <> (fs <*> xs)
 
-instance Alternative []
+instance Alternative [] where
+  -- empty :: [a]
+  empty = []
+  -- (<|>) :: [a] -> [a] -> [a]
+  (<|>) = (<>)
 
-instance Monad []
+instance Monad [] where
+  -- >>= :: [a] -> (a -> [b]) -> [b]
+  xs >>= famb = foldr (\x ys -> (famb x) <> ys) [] xs
 
 (++) :: [a] -> [a] -> [a]
 (++) x ys = case x of

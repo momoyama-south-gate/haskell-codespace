@@ -27,6 +27,7 @@ import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
 import My.Data.Proxy
+import Data.List((++))
 import My.Prelude.Internal
 import My.Test.Arbitrary
 
@@ -159,7 +160,12 @@ some = undefined
 many :: Alternative f => f a -> f [a]
 many = undefined
 
-instance Alternative ZipList
+instance Alternative ZipList where
+  -- empty :: ZipList a
+  empty = ZipList []
+  -- (<|>) :: ZipList a -> ZipList a -> ZipList a
+  ZipList xs <|> ZipList ys = ZipList (xs ++ ys)
+
 -- --|
 -- prop> prop_Functor_Comp @ZipList
 -- prop> prop_Functor_Id @ZipList
@@ -179,7 +185,7 @@ reverse xs = go xs [] where
     [] -> acc
     x:xs -> go xs (x:acc)
 
--- |
+-- -- |
 -- prop> prop_Applicative_Id @ZipList
 -- prop> prop_Applicative_Comp @ZipList
 -- -- prop> prop_Applicative_Homo @ZipList Proxy

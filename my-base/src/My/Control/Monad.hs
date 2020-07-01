@@ -4,6 +4,7 @@ module My.Control.Monad where
 
 import My.Control.Applicative
 import My.Data.Proxy
+import My.Data.Function
 import My.Prelude.Internal
 import My.Test.Arbitrary
 
@@ -55,59 +56,72 @@ prop_Monad_Right_Id ::
 prop_Monad_Right_Id ma = (ma >>= pure) == ma
 
 return :: Monad m => a -> m a
-return = undefined
+return = pure
 
 (>>) :: Monad m => m a -> m b -> m b
-(>>) = undefined
+(>>) ma mb = ma >>= const mb
 
 infixl 1 >>
 
 join :: Monad m => m (m a) -> m a
-join = undefined
+join ma = ma >>= identity
 
 (=<<) :: Monad m => (a -> m b) -> m a -> m b
-(=<<) = undefined
+(=<<) = flip (>>=)
 
 infixr 1 =<<
 
 (>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
-(>=>) = undefined
+(>=>) f g a = f a >>= g
 
 infixr 1 >=>
 
 (<=<) :: Monad m => (b -> m c) -> (a -> m b) -> (a -> m c)
-(<=<) = undefined
+(<=<) = flip (>=>)
 
 infixr 1 <=<
 
 forever :: Applicative f => f a -> f b
-forever = undefined
+forever fa = fa *> forever fa
 
 filterM :: Applicative f => (a -> f Bool) -> [a] -> f [a]
-filterM = undefined
+filterM _ [] = pure []
+filterM f (x:xs) = liftA2 (\flg -> if flg then (x:) else identity) (f x) (filterM f xs)
 
 mapAndUnzipM :: Applicative f => (a -> f (b, c)) -> [a] -> f ([b], [c])
-mapAndUnzipM = undefined
+mapAndUnzipM _ [] = pure ([], [])
+mapAndUnzipM f (x:xs) = liftA2 (\(b,c) (bs,cs) -> ((b:bs), (c:cs)) ) (f x) (mapAndUnzipM f xs)
 
 zipWithM :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f [c]
-zipWithM = undefined
+zipWithM _ [] _ = pure []
+zipWithM _ _ [] = pure []
+zipWithM f (x:xs) (y:ys) = liftA2 (\c cs -> c:cs) (f x y) (zipWithM f xs ys)
 
 zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
-zipWithM_ = undefined
+zipWithM_ _ _ [] = pure ()
+zipWithM_ _ [] _ = pure ()
+zipWithM_ f (x:xs) (y:ys) = liftA2 (\_ _ -> ()) (f x y) (zipWithM_ f xs ys)
 
 replicateM :: Applicative f => Int -> f a -> f [a]
-replicateM = undefined
+replicateM n fa = if n <= 0 then pure [] else
+  liftA2 (\a as -> a:as) fa (replicateM (n-1) fa)
 
 replicateM_ :: Applicative f => Int -> f a -> f ()
-replicateM_ = undefined
+replicateM_ n fa = if n <= 0 then pure () else
+  liftA2 (\_ _ -> ()) fa (replicateM_ (n-1) fa)
 
 guard :: Alternative f => Bool -> f ()
 guard = undefined
 
 when :: Applicative f => Bool -> f () -> f ()
-when = undefined
+when True fx = fx
+when _ _ = pure ()
 
 unless :: Applicative f => Bool -> f () -> f ()
-unless = undefined
+unless False fx = fx
+unless _ _ = pure ()
 
-instance Monad ((->) r)
+instance Monad ((->) r) where
+  -- >>= :: (r -> a) -> (a -> r -> b) -> r -> b
+  (fra >>= farb) r = farb (fra r) r
+

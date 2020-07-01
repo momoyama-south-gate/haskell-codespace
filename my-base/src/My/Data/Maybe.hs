@@ -95,6 +95,13 @@ instance Applicative Maybe where
   (Just f) <*> (Just x) = Just (f x)
   _ <*> _ = Nothing
 
-instance Alternative Maybe
+instance Alternative Maybe where
+  -- empty :: Maybe a
+  empty = Nothing
+  -- (<|>) :: Maybe a -> Maybe a -> Maybe a
+  -- (Just x) <|> (Just y) = Just (x <|> y)
 
-instance Monad Maybe
+instance Monad Maybe where
+  -- (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
+  Nothing >>= _ = Nothing
+  Just x >>= f = f x

@@ -84,4 +84,7 @@ instance Applicative (Either e) where
   Left e <*> _ = Left e
   _ <*> Left e = Left e
 
-instance Monad (Either e)
+instance Monad (Either e) where
+  -- (>>=) :: Either e a -> (a -> Either e b) -> Either e b
+  Left e >>= _ = Left e
+  Right x >>= f = f x

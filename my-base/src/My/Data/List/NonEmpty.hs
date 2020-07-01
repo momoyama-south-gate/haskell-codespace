@@ -38,7 +38,11 @@ infixr 5 <|
 map :: (a -> b) -> NonEmpty a -> NonEmpty b
 map f (x :| xs) = (f x) :| (fmap f xs)
 
-instance Monad NonEmpty
+instance Monad NonEmpty where
+  -- >>= :: NonEmpty a -> (a -> NonEmpty b) -> NonEmpty b
+  (x :| []) >>= famb = famb x
+  (x :| (x2:[])) >>= famb = famb x <> (famb x2)
+  (x :| (x2:xs)) >>= famb = famb x <> ((x2 :| xs) >>= famb)
 
 -- | 追加练习
 -- 访问以下 url：

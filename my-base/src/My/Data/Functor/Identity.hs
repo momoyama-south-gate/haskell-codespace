@@ -52,4 +52,8 @@ instance Applicative Identity where
   -- (<*>) :: Identity (a -> b) -> Identity a -> Identity b
   (Identity f) <*> (Identity a) = Identity (f a)
 
-instance Monad Identity
+-- |
+-- prop> prop_Monad_Assoc @Identity
+instance Monad Identity where
+  -- (>>=) :: Identity a -> (a -> Identity b) -> Identity b
+  (Identity x) >>= f = f x
