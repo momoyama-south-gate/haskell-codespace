@@ -27,7 +27,6 @@ import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
 import My.Data.Proxy
-import Data.List((++))
 import My.Prelude.Internal
 import My.Test.Arbitrary
 
