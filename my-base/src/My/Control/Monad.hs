@@ -2,6 +2,8 @@
 
 module My.Control.Monad where
 
+import My.Data.Function
+import My.Data.Functor
 import My.Control.Applicative
 import My.Data.Proxy
 import My.Prelude.Internal
@@ -55,51 +57,88 @@ prop_Monad_Right_Id ::
 prop_Monad_Right_Id ma = (ma >>= pure) == ma
 
 return :: Monad m => a -> m a
-return = undefined
+return = pure
 
 (>>) :: Monad m => m a -> m b -> m b
-(>>) = undefined
+(>>) ma mb = ma >>= const mb
+-- <>:: (a->b) -> ma -> mb
+-- (>>=)::m a -> (a -> m b) -> m b
+-- const:: Const a -> a
+-- (<*>)::f(a->b)-> f a -> f b
 
 infixl 1 >>
 
 join :: Monad m => m (m a) -> m a
-join = undefined
+join mma = mma >>= identity
+-- (>>=)::m (m a) -> (m a -> m a) -> m a
 
 (=<<) :: Monad m => (a -> m b) -> m a -> m b
-(=<<) = undefined
+(=<<) = flip $ (>>=)
 
 infixr 1 =<<
 
 (>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
-(>=>) = undefined
+(>=>) fa fb = ((=<<) fb) . fa
+-- b -> m c
+-- (>>=)::m b -> (b -> m c) -> m c
 
 infixr 1 >=>
 
 (<=<) :: Monad m => (b -> m c) -> (a -> m b) -> (a -> m c)
-(<=<) = undefined
+(<=<) = flip $ (>=>)
 
 infixr 1 <=<
 
 forever :: Applicative f => f a -> f b
-forever = undefined
+forever fa = fb
+  where
+    fb = fa *> fb
 
+-- 不看标准库写不出来啊。。。。
+-- liftA2::(Bool -> [a] -> [a]) -> f Bool -> f[a] -> f[a]
 filterM :: Applicative f => (a -> f Bool) -> [a] -> f [a]
-filterM = undefined
+filterM f = foldl (\fl x -> liftA2 (\y l-> if y then x:l else l) (f x) fl) (pure [])
+  where
+    foldl :: (b -> a -> b) -> b -> [a] -> b
+    foldl _ o [] = o
+    foldl f o (hd : tl) = foldl f (f o hd) tl
 
+-- liftA2::(a->b->c)->f a->f b->f c
+-- liftA2::((b,c)->([b],[c])->([b],[c]))-> f(b,c) -> f ([b],[c]) -> f([b],[c])
 mapAndUnzipM :: Applicative f => (a -> f (b, c)) -> [a] -> f ([b], [c])
-mapAndUnzipM = undefined
+mapAndUnzipM f = foldl (\fl x -> liftA2 (\(b,c) (lf,lr)-> (b:lf, c:lr)) (f x) fl) (pure ([],[]))
+  where
+    foldl :: (b -> a -> b) -> b -> [a] -> b
+    foldl _ o [] = o
+    foldl f o (hd : tl) = foldl f (f o hd) tl
 
+-- liftA2::(c -> [c] ->[c])-> f c -> f [c] -> f [c]
 zipWithM :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f [c]
-zipWithM = undefined
+zipWithM f la lb = foldl (\fl (a,b) -> liftA2 (\y l -> y : l) (f a b) fl) (pure ([])) (zip la lb)
+  where
+    foldl :: (b -> a -> b) -> b -> [a] -> b
+    foldl _ o [] = o
+    foldl f o (hd : tl) = foldl f (f o hd) tl
 
-zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
-zipWithM_ = undefined
+    zip :: [a] -> [b] -> [(a, b)]
+    zip _ [] = []
+    zip [] _ = []
+    zip (a : tla) (b: tlb) = (a, b) : zip tla tlb   
+
+--zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
+--zipWithM_ = undefined
 
 replicateM :: Applicative f => Int -> f a -> f [a]
-replicateM = undefined
+replicateM n f = liftA (replicate n) f
+  where 
+    replicate :: Int -> a -> [a]
+    replicate n a =
+      if n == 0
+      then []
+      else a : replicate (n-1) a
 
-replicateM_ :: Applicative f => Int -> f a -> f ()
-replicateM_ = undefined
+--replicateM_ :: Applicative f => Int -> f a -> f ()
+--replicateM_ = undefined
 
 guard :: Alternative f => Bool -> f ()
 guard = undefined

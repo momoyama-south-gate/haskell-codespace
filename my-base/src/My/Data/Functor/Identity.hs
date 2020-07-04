@@ -30,4 +30,6 @@ instance Applicative Identity where
   Identity f <*> Identity a = Identity (f a)
 -- <*> :: f (a -> b) -> f a -> f b
 
-instance Monad Identity
+instance Monad Identity where
+  Identity a >>= f = f a
+-- (>>=) :: m a -> (a -> m b) -> m b

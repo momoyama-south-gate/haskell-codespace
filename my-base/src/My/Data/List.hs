@@ -22,9 +22,20 @@ instance Applicative [] where
       (_, []) -> []
       (f: tf, _) -> map f fa ++ (tf <*> fa)
 
-instance Alternative []
+-- |
+-- prop> prop_Alternative_Left_Id @[]
+-- prop> prop_Alternative_Right_Id @[]
+-- prop> prop_Alternative_Assoc @[]
+instance Alternative [] where
+  empty = []
+  (<|>) = (++)
 
-instance Monad []
+-- |
+-- prop> prop_Monad_Left_Id @[]
+-- prop> prop_Monad_Right_Id @[]
+instance Monad []　where
+  [] >>= _ = []
+  (>>=) (a: tl) f = (f a) ++ (tl >>= f) 
 
 (++) :: [a] -> [a] -> [a]
 (++) [] l = l
@@ -380,3 +391,16 @@ sortBy f (a : tl) = sortBy f first <> (a : sortBy f second)
 -- http://hackage.haskell.org/package/base-4.14.0.0/docs/Data-List.html
 -- 从中选 10 个你认为常用的函数（除去已实现的）实现一下。
 -- （两个人各写 5 个不同的加起来就是 10 个）
+
+-- |
+-- -->>> permutations "abc"
+-- --["abc","bac","cba","bca","cab","acb"]
+--permutations :: [a] -> [[a]]
+--permutations [] = []
+--permutations [a] = [[a]] 
+--permutations (a : tl) = (map (\l -> a : l) other) ++ (map (\l -> l ++ [a]) other)
+--  where
+--    divide :: [a] -> [([a],[a])]
+--    divide [] = [([], [])]
+--    divide (a:tl) = fmap 
+

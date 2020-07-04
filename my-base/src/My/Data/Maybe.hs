@@ -87,6 +87,12 @@ instance Applicative Maybe where
       _ -> Nothing
 -- <*>::f(a -> b) -> f a -> f b
 
-instance Alternative Maybe
+instance Alternative Maybe where
+  empty = Nothing
+  
+-- empty = f a
+-- <|>:: f a -> f a -> f a
 
-instance Monad Maybe
+instance Monad Maybe where
+  Just a >>= f = f a
+  Nothing >>= _ = Nothing
