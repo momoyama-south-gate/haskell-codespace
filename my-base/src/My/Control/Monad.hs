@@ -111,7 +111,8 @@ replicateM_ n fa = if n <= 0 then pure () else
   liftA2 (\_ _ -> ()) fa (replicateM_ (n-1) fa)
 
 guard :: Alternative f => Bool -> f ()
-guard = undefined
+guard True = pure ()
+grard False = empty
 
 when :: Applicative f => Bool -> f () -> f ()
 when True fx = fx

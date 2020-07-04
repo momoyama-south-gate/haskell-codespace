@@ -99,7 +99,8 @@ instance Alternative Maybe where
   -- empty :: Maybe a
   empty = Nothing
   -- (<|>) :: Maybe a -> Maybe a -> Maybe a
-  -- (Just x) <|> (Just y) = Just (x <|> y)
+  (Just x) <|> _ = Just x
+  Nothing <|> y = y
 
 instance Monad Maybe where
   -- (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b

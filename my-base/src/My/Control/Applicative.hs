@@ -27,7 +27,6 @@ import Control.Applicative as X (ZipList (..))
 import My.Data.Function
 import My.Data.Functor
 import My.Data.Proxy
-import Data.List((++))
 import My.Prelude.Internal
 import My.Test.Arbitrary
 
@@ -155,16 +154,17 @@ prop_Alternative_Assoc u v w = left == right
     right = (u <|> v) <|> w
 
 some :: Alternative f => f a -> f [a]
-some = undefined
+some x = liftA2 (:) x (many x)
 
 many :: Alternative f => f a -> f [a]
-many = undefined
+many x = some x <|> pure []
 
 instance Alternative ZipList where
   -- empty :: ZipList a
   empty = ZipList []
   -- (<|>) :: ZipList a -> ZipList a -> ZipList a
-  ZipList xs <|> ZipList ys = ZipList (xs ++ ys)
+  empty <|> ys = ys
+  xs <|> _ = xs
 
 -- --|
 -- prop> prop_Functor_Comp @ZipList
