@@ -141,12 +141,18 @@ replicateM n f = liftA (replicate n) f
 --replicateM_ = undefined
 
 guard :: Alternative f => Bool -> f ()
-guard = undefined
+guard True = pure ()
+guard False = empty
 
 when :: Applicative f => Bool -> f () -> f ()
-when = undefined
+when True f = f
+when False _ = pure ()
 
 unless :: Applicative f => Bool -> f () -> f ()
-unless = undefined
+unless False f = f
+unless True _ = pure ()
 
-instance Monad ((->) r)
+instance Monad ((->) r) where
+  (>>=) ma fa = \r -> (fa $ ma r) r
+-- (r->a) -> (a -> (r->b)) -> (r-> b)
+

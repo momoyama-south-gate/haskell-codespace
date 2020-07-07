@@ -192,7 +192,7 @@ prop_Alternative_Assoc u v w = left == right
 -- some parseInt "abc"
 -- empty
 some :: Alternative f => f a -> f [a]
-some = undefined
+some fa = undefined
 
 -- many parseInt "123abc"
 -- pure [1, 2, 3]
@@ -201,4 +201,10 @@ some = undefined
 many :: Alternative f => f a -> f [a]
 many = undefined
 
-instance Alternative ZipList
+-- |
+-- prop> prop_Alternative_Left_Id @ZipList
+-- prop> prop_Alternative_Right_Id @ZipList
+-- prop> prop_Alternative_Assoc @ZipList
+instance Alternative ZipList where
+  empty = ZipList []
+  (<|>) (ZipList la) (ZipList lb) = ZipList (la P.++ lb)

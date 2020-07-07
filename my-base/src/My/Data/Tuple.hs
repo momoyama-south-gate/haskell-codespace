@@ -62,4 +62,6 @@ instance Monoid a => Applicative ((,) a) where
 -- lhs = (1, const 0) <*> (0, 0) = (0, 0)
 -- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
 
-instance Monoid a => Monad ((,) a)
+instance Monoid a => Monad ((,) a) where
+  (>>=) (_, a) f = f a
+-- (a, a) -> (a -> (a, b)) -> (a, b)  
