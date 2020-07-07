@@ -5,6 +5,7 @@ module My.Control.Monad where
 import My.Control.Applicative
 import My.Data.Proxy
 import My.Data.Function
+import My.Data.Functor
 import My.Prelude.Internal
 import My.Test.Arbitrary
 
@@ -95,20 +96,17 @@ mapAndUnzipM f (x:xs) = liftA2 (\(b,c) (bs,cs) -> ((b:bs), (c:cs)) ) (f x) (mapA
 zipWithM :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f [c]
 zipWithM _ [] _ = pure []
 zipWithM _ _ [] = pure []
-zipWithM f (x:xs) (y:ys) = liftA2 (\c cs -> c:cs) (f x y) (zipWithM f xs ys)
+zipWithM f (x:xs) (y:ys) = liftA2 (:) (f x y) (zipWithM f xs ys)
 
 zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
-zipWithM_ _ _ [] = pure ()
-zipWithM_ _ [] _ = pure ()
-zipWithM_ f (x:xs) (y:ys) = liftA2 (\_ _ -> ()) (f x y) (zipWithM_ f xs ys)
+zipWithM_ f la lb = void $ zipWithM f la lb
 
 replicateM :: Applicative f => Int -> f a -> f [a]
 replicateM n fa = if n <= 0 then pure [] else
-  liftA2 (\a as -> a:as) fa (replicateM (n-1) fa)
+  liftA2 (:) fa (replicateM (n-1) fa)
 
 replicateM_ :: Applicative f => Int -> f a -> f ()
-replicateM_ n fa = if n <= 0 then pure () else
-  liftA2 (\_ _ -> ()) fa (replicateM_ (n-1) fa)
+replicateM_ n fa = void $ replicateM n fa
 
 guard :: Alternative f => Bool -> f ()
 guard True = pure ()
