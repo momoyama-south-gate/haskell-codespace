@@ -1,6 +1,7 @@
 module My.Data.List where
 
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Function
 import My.Data.Tuple
@@ -40,6 +41,16 @@ instance Applicative [] where
   [] <*> _ = []
   _ <*> [] = []
   (f:fs) <*> xs = ( fmap f xs ) <> (fs <*> xs)
+
+instance Alternative [] where
+  -- empty :: [a]
+  empty = []
+  -- (<|>) :: [a] -> [a] -> [a]
+  (<|>) = (<>)
+
+instance Monad [] where
+  -- >>= :: [a] -> (a -> [b]) -> [b]
+  xs >>= famb = foldr (\x ys -> (famb x) <> ys) [] xs
 
 (++) :: [a] -> [a] -> [a]
 (++) x ys = case x of

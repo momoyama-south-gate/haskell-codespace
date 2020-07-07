@@ -2,14 +2,20 @@
 
 module My.Control.Applicative
   ( module X,
+    Alternative (..),
     Applicative (..),
     prop_Applicative_Id,
     prop_Applicative_Comp,
     prop_Applicative_Homo,
     prop_Applicative_Inter,
+    prop_Alternative_Left_Id,
+    prop_Alternative_Right_Id,
+    prop_Alternative_Assoc,
     liftA,
     liftA2,
     liftA3,
+    many,
+    some,
     (<*),
     (*>),
     (<**>),
@@ -119,6 +125,56 @@ instance Applicative ((->) a) where
 --       { getZipList :: [a]
 --       }
 
+class Applicative f => Alternative f where
+  empty :: f a
+  (<|>) :: f a -> f a -> f a
+
+infixl 3 <|>
+
+-- | Alternative 法则
+
+-- | 左同一律（left identity）
+-- empty <|> u 等于 u
+prop_Alternative_Left_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Left_Id u = (empty <|> u) == u
+
+-- | 右同一律（right identity）
+-- u <|> empty 等于 u
+prop_Alternative_Right_Id :: forall f a. (Alternative f, Eq (f a)) => f a -> Bool
+prop_Alternative_Right_Id u = (u <|> empty) == u
+
+-- | 结合律（associativity）
+-- u <|> (v <|> w) 等于 (u <|> v) <|> w
+prop_Alternative_Assoc ::
+  forall f a.
+  (Alternative f, Eq (f a)) =>
+  f a ->
+  f a ->
+  f a ->
+  Bool
+prop_Alternative_Assoc u v w = left == right
+  where
+    left = u <|> (v <|> w)
+    right = (u <|> v) <|> w
+
+some :: Alternative f => f a -> f [a]
+some x = liftA2 (:) x (many x)
+
+many :: Alternative f => f a -> f [a]
+many x = some x <|> pure []
+
+-- --|
+-- prop> prop_Alternative_Left_Id @ZipList
+-- prop> prop_Alternative_Right_Id @ZipList
+-- prop> prop_Alternative_Assoc @ZipList
+instance Alternative ZipList where
+  -- empty :: ZipList a
+  empty = ZipList []
+  -- (<|>) :: ZipList a -> ZipList a -> ZipList a
+  xs <|> ys = case xs of
+    ZipList [] -> ys
+    _ -> xs
+
 -- --|
 -- prop> prop_Functor_Comp @ZipList
 -- prop> prop_Functor_Id @ZipList
@@ -138,7 +194,7 @@ reverse xs = go xs [] where
     [] -> acc
     x:xs -> go xs (x:acc)
 
--- |
+-- -- |
 -- prop> prop_Applicative_Id @ZipList
 -- prop> prop_Applicative_Comp @ZipList
 -- -- prop> prop_Applicative_Homo @ZipList Proxy
