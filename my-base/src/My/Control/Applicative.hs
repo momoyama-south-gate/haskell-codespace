@@ -159,12 +159,17 @@ some x = liftA2 (:) x (many x)
 many :: Alternative f => f a -> f [a]
 many x = some x <|> pure []
 
+-- --|
+-- prop> prop_Alternative_Left_Id @ZipList
+-- prop> prop_Alternative_Right_Id @ZipList
+-- prop> prop_Alternative_Assoc @ZipList
 instance Alternative ZipList where
   -- empty :: ZipList a
   empty = ZipList []
   -- (<|>) :: ZipList a -> ZipList a -> ZipList a
-  empty <|> ys = ys
-  xs <|> _ = xs
+  xs <|> ys = case xs of
+    ZipList [] -> ys
+    _ -> xs
 
 -- --|
 -- prop> prop_Functor_Comp @ZipList

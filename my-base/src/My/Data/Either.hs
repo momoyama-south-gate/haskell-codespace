@@ -84,6 +84,10 @@ instance Applicative (Either e) where
   Left e <*> _ = Left e
   _ <*> Left e = Left e
 
+-- -- |
+-- prop> prop_Monad_Assoc @(Either Int)
+-- prop> prop_Monad_Left_Id @(Either Int)
+-- prop> prop_Monad_Right_Id @(Either Int)
 instance Monad (Either e) where
   -- (>>=) :: Either e a -> (a -> Either e b) -> Either e b
   Left e >>= _ = Left e
