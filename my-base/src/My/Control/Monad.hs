@@ -110,7 +110,7 @@ replicateM_ n fa = void $ replicateM n fa
 
 guard :: Alternative f => Bool -> f ()
 guard True = pure ()
-grard False = empty
+guard False = empty
 
 when :: Applicative f => Bool -> f () -> f ()
 when True fx = fx
