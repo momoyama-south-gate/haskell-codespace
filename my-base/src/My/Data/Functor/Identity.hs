@@ -5,6 +5,7 @@ where
 
 import Data.Functor.Identity as X (Identity (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Monoid
 import My.Data.Semigroup
@@ -50,3 +51,9 @@ instance Applicative Identity where
   pure x = Identity x
   -- (<*>) :: Identity (a -> b) -> Identity a -> Identity b
   (Identity f) <*> (Identity a) = Identity (f a)
+
+-- |
+-- prop> prop_Monad_Assoc @Identity
+instance Monad Identity where
+  -- (>>=) :: Identity a -> (a -> Identity b) -> Identity b
+  (Identity x) >>= f = f x

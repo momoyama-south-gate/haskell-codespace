@@ -13,12 +13,14 @@ where
 
 import Data.Either as X (Either (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Function
 import My.Data.List
 import My.Data.Proxy
 import My.Data.Functor
 import My.Data.Semigroup
 import My.Prelude.Internal
+import Data.Bool (not)
 
 either :: (a -> c) -> (b -> c) -> Either a b -> c
 either fl _ (Left x) = fl x
@@ -82,3 +84,12 @@ instance Applicative (Either e) where
   Right f <*> Right x = Right (f x)
   Left e <*> _ = Left e
   _ <*> Left e = Left e
+
+-- -- |
+-- prop> prop_Monad_Assoc @(Either Int)
+-- prop> prop_Monad_Left_Id @(Either Int)
+-- prop> prop_Monad_Right_Id @(Either Int)
+instance Monad (Either e) where
+  -- (>>=) :: Either e a -> (a -> Either e b) -> Either e b
+  Left e >>= _ = Left e
+  Right x >>= f = f x

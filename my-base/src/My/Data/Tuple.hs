@@ -8,8 +8,9 @@ module My.Data.Tuple
 where
 
 import My.Control.Applicative
+import My.Control.Monad
+import My.Data.Proxy
 import My.Data.Functor
-import My.Data.Function
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
@@ -29,16 +30,16 @@ uncurry f (x,y) = f x y
 swap :: (a, b) -> (b, a)
 swap (x,y) = (y,x)
 
--- |
--- -- prop> prop_Semigroup_Assoc @(Sum Int,Sum Int)
--- -- prop> prop_Monoid_LeftId @(Sum Int,Sum Int)
--- -- prop> prop_Monoid_RightId @(Sum Int,Sum Int)
--- -- prop> prop_Functor_Id @((,)Sum Int)
--- -- prop> prop_Functor_Comp @((,) Sum Int)
--- -- prop> prop_Applicative_Id @((,) Sum Int)
--- -- prop> prop_Applicative_Comp @((,) Sum Int)
--- -- prop> prop_Applicative_Homo @((,) Sum Int) Proxy
--- -- prop> prop_Applicative_Inter @((,) Sum Int) 
+-- -- |
+-- prop> prop_Semigroup_Assoc @(Sum Int,Sum Int)
+-- prop> prop_Monoid_LeftId @(Sum Int,Sum Int)
+-- prop> prop_Monoid_RightId @(Sum Int,Sum Int)
+-- prop> prop_Functor_Id @((,)(Sum Int))
+-- prop> prop_Functor_Comp @((,) (Sum Int))
+-- prop> prop_Applicative_Id @((,) (Sum Int))
+-- prop> prop_Applicative_Comp @((,) (Sum Int))
+-- prop> prop_Applicative_Homo @((,) (Sum Int)) Proxy
+-- prop> prop_Applicative_Inter @((,) (Sum Int)) 
 instance (Semigroup a, Semigroup b) => Semigroup (a, b) where
   -- <> :: (a,b) -> (a,b) -> (a,b)
   (a1, b1) <> (a2, b2) = (a1 <> a2, b1 <> b2)

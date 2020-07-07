@@ -13,6 +13,7 @@ where
 
 import Data.Maybe as X (Maybe (..))
 import My.Control.Applicative
+import My.Control.Monad
 import My.Data.Functor
 import My.Data.Function
 import My.Data.List
@@ -20,6 +21,7 @@ import My.Data.Proxy
 import My.Data.Monoid
 import My.Data.Semigroup
 import My.Prelude.Internal
+import Data.Bool (not)
 
 -- data Maybe a = Nothing | Just a
 
@@ -93,3 +95,15 @@ instance Applicative Maybe where
   -- <*> :: Maybe (a -> b) -> Maybe a -> Maybe b
   (Just f) <*> (Just x) = Just (f x)
   _ <*> _ = Nothing
+
+instance Alternative Maybe where
+  -- empty :: Maybe a
+  empty = Nothing
+  -- (<|>) :: Maybe a -> Maybe a -> Maybe a
+  (Just x) <|> _ = Just x
+  Nothing <|> y = y
+
+instance Monad Maybe where
+  -- (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
+  Nothing >>= _ = Nothing
+  Just x >>= f = f x
