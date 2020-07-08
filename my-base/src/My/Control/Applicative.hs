@@ -8,6 +8,9 @@ module My.Control.Applicative
     prop_Applicative_Comp,
     prop_Applicative_Homo,
     prop_Applicative_Inter,
+    prop_Alternative_Left_Id,
+    prop_Alternative_Right_Id,
+    prop_Alternative_Assoc,
     liftA,
     liftA2,
     liftA3,
@@ -151,6 +154,7 @@ instance Applicative ZipList where
 -- class Monoid a where
 --   mempty :: a
 --   (<>) :: a -> a -> a
+
 class Applicative f => Alternative f where
   empty :: f a
   (<|>) :: f a -> f a -> f a
@@ -183,18 +187,25 @@ prop_Alternative_Assoc u v w = left == right
     left = u <|> (v <|> w)
     right = (u <|> v) <|> w
 
--- some parseInt "123abc"
--- pure [1, 2, 3]
--- some parseInt "abc"
--- empty
+-- |
+-- AWS SQS
+-- Cloud: Queue Task
+-- IO Task -> IO [Task]
+-- some getTask :: IO [Task]
 some :: Alternative f => f a -> f [a]
-some = undefined
+some fa = liftA2 (:) fa (many fa)
+-- fa :: f a -> \a
+-- many fa :: f [a] -> \as
+-- a : as
 
--- many parseInt "123abc"
--- pure [1, 2, 3]
--- many parseInt "abc"
--- pure []
 many :: Alternative f => f a -> f [a]
-many = undefined
+many fa = some fa <|> pure []
 
-instance Alternative ZipList
+-- |
+-- prop> prop_Alternative_Left_Id @ZipList
+-- prop> prop_Alternative_Right_Id @ZipList
+-- prop> prop_Alternative_Assoc @ZipList
+instance Alternative ZipList where
+  empty = ZipList []
+  ZipList [] <|> zlb = zlb
+  zla <|> _ = zla

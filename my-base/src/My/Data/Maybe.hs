@@ -87,6 +87,19 @@ instance Applicative Maybe where
       _ -> Nothing
 -- <*>::f(a -> b) -> f a -> f b
 
-instance Alternative Maybe
 
-instance Monad Maybe
+instance Alternative Maybe where
+  empty = Nothing
+  Just a <|> _ = Just a
+  _ <|> Just b = Just b
+  _ <|> _ = Nothing   
+-- empty = f a
+-- <|>:: f a -> f a -> f a
+
+-- |
+-- prop> prop_Monad_Left_Id @Maybe
+-- prop> prop_Monad_Right_Id @Maybe
+-- prop> prop_Monad_Assoc @Maybe
+instance Monad Maybe where
+  Just a >>= f = f a
+  Nothing >>= _ = Nothing

@@ -29,7 +29,15 @@ instance Applicative NonEmpty where
       (f :| [], a :| _) -> (f a :| [])
       (f :| tf, a :| ta) -> (f a :| (tf <*> ta))
 
-instance Monad NonEmpty
+instance Monad NonEmpty where
+  (>>=) (a :| []) f = f a
+  (>>=) (a :| tl) f = (f a) <> (nmap tl f)
+    where
+      nmap :: [a] -> (a -> NonEmpty b) -> NonEmpty b
+      nmap [a] f = f a
+      nmap (a : tl) f = f a <> (nmap tl f) 
+-- (f a) -> (a -> f b) -> f b
+-- noemtpy a -> (a -> noempty b) -> noemtpy b
 
 -- | 追加练习
 -- 访问以下 url：

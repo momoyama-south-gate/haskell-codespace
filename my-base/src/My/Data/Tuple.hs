@@ -52,10 +52,20 @@ instance Functor ((,) a) where
 instance Monoid a => Applicative ((,) a) where
   pure b = (mempty, b)
 -- pure :: a -> f a
+-- <*> :: (a, (b -> c)) -> (a, b) -> (a, c)
+-- u <*> pure y = pure ($ y) <*> u
+-- lhs = (1, const 0) <*> (0, 0) = (0, 0)
+-- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
   (<*>) (x, f) (y, a) = (x <> y, f a) 
 -- <*> :: (a, (b -> c)) -> (a, b) -> (a, c)
 -- u <*> pure y = pure ($ y) <*> u
 -- lhs = (1, const 0) <*> (0, 0) = (0, 0)
 -- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
 
-instance Monoid a => Monad ((,) a)
+-- |
+-- prop> prop_Monad_Left_Id @((,) (Sum Int))
+-- prop> prop_Monad_Right_Id @((,) (Sum Int))
+-- prop> prop_Monad_Assoc @((,) (Sum Int))
+instance Monoid a => Monad ((,) a) where
+  (>>=) (x, a) f = (x <> (fst $ f a), snd $ f a)
+-- (a, a) -> (a -> (a, b)) -> (a, b)  
