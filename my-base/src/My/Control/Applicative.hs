@@ -207,4 +207,5 @@ many = undefined
 -- prop> prop_Alternative_Assoc @ZipList
 instance Alternative ZipList where
   empty = ZipList []
-  (<|>) (ZipList la) (ZipList lb) = ZipList (la P.++ lb)
+  ZipList [] <|> zlb = zlb
+  zla <|> _ = zla

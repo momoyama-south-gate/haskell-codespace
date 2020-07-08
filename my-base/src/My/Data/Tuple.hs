@@ -62,6 +62,10 @@ instance Monoid a => Applicative ((,) a) where
 -- lhs = (1, const 0) <*> (0, 0) = (0, 0)
 -- rhs = (0, \f -> f 0) <*> (1, const 0) = (1, 0)
 
+-- |
+-- prop> prop_Monad_Left_Id @((,) (Sum Int))
+-- prop> prop_Monad_Right_Id @((,) (Sum Int))
+-- prop> prop_Monad_Assoc @((,) (Sum Int))
 instance Monoid a => Monad ((,) a) where
-  (>>=) (_, a) f = f a
+  (>>=) (x, a) f = (x <> (fst $ f a), snd $ f a)
 -- (a, a) -> (a -> (a, b)) -> (a, b)  

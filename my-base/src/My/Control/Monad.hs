@@ -73,7 +73,7 @@ join mma = mma >>= identity
 -- (>>=)::m (m a) -> (m a -> m a) -> m a
 
 (=<<) :: Monad m => (a -> m b) -> m a -> m b
-(=<<) = flip $ (>>=)
+(=<<) = flip (>>=)
 
 infixr 1 =<<
 
@@ -85,7 +85,7 @@ infixr 1 =<<
 infixr 1 >=>
 
 (<=<) :: Monad m => (b -> m c) -> (a -> m b) -> (a -> m c)
-(<=<) = flip $ (>=>)
+(<=<) = flip (>=>)
 
 infixr 1 <=<
 
@@ -125,20 +125,15 @@ zipWithM f la lb = foldl (\fl (a,b) -> liftA2 (\y l -> y : l) (f a b) fl) (pure 
     zip [] _ = []
     zip (a : tla) (b: tlb) = (a, b) : zip tla tlb   
 
---zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
---zipWithM_ = undefined
+zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
+zipWithM_ f la lb  = const (pure ()) (zipWithM f la lb)
 
 replicateM :: Applicative f => Int -> f a -> f [a]
-replicateM n f = liftA (replicate n) f
-  where 
-    replicate :: Int -> a -> [a]
-    replicate n a =
-      if n == 0
-      then []
-      else a : replicate (n-1) a
+replicateM 0 _ = pure []
+replicateM n f = liftA2 (\a l -> a : l) f (replicateM (n-1) f)
 
---replicateM_ :: Applicative f => Int -> f a -> f ()
---replicateM_ = undefined
+replicateM_ :: Applicative f => Int -> f a -> f ()
+replicateM_ n f = const (pure ()) (replicateM_ n f)
 
 guard :: Alternative f => Bool -> f ()
 guard True = pure ()
