@@ -34,6 +34,7 @@ instance Alternative [] where
 -- prop> prop_Monad_Left_Id @[]
 -- prop> prop_Monad_Right_Id @[]
 instance Monad []　where
+  -- as >>= f = mconcat $ f <$> as
   [] >>= _ = []
   (>>=) (a: tl) f = (f a) ++ (tl >>= f) 
 

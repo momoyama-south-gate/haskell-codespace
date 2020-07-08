@@ -63,7 +63,7 @@ return = pure
 (>>) ma mb = ma >>= const mb
 -- <>:: (a->b) -> ma -> mb
 -- (>>=)::m a -> (a -> m b) -> m b
--- const:: Const a -> a
+-- const:: a -> b -> a
 -- (<*>)::f(a->b)-> f a -> f b
 
 infixl 1 >>
@@ -126,14 +126,14 @@ zipWithM f la lb = foldl (\fl (a,b) -> liftA2 (\y l -> y : l) (f a b) fl) (pure 
     zip (a : tla) (b: tlb) = (a, b) : zip tla tlb   
 
 zipWithM_ :: Applicative f => (a -> b -> f c) -> [a] -> [b] -> f ()
-zipWithM_ f la lb  = const (pure ()) (zipWithM f la lb)
+zipWithM_ f la lb  = void $ zipWithM f la lb
 
 replicateM :: Applicative f => Int -> f a -> f [a]
 replicateM 0 _ = pure []
 replicateM n f = liftA2 (\a l -> a : l) f (replicateM (n-1) f)
 
 replicateM_ :: Applicative f => Int -> f a -> f ()
-replicateM_ n f = const (pure ()) (replicateM_ n f)
+replicateM_ n f = void $ replicateM_ n f
 
 guard :: Alternative f => Bool -> f ()
 guard True = pure ()
@@ -151,3 +151,26 @@ instance Monad ((->) r) where
   (>>=) ma fa = \r -> (fa $ ma r) r
 -- (r->a) -> (a -> (r->b)) -> (r-> b)
 
+--do
+--  a <- [1..10]
+--  b <- [1..10]
+--  guard (a + b > 10)
+--  pure (a, b)
+
+-- do a <- ma
+--    mb
+-- ma >>= \a -> mb
+
+-- do ma
+--    mb
+-- ma >> mb
+
+-- do let x = y
+--     ma
+-- let x = y in ma
+-- [1..10] >>= \a ->
+--   [1..10] >>= \b ->
+--     (if a + b > 10
+--      then [()]
+--      else []
+--     ) >>= \a -> [(a,b)]
