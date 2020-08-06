@@ -1,0 +1,40 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           simple-parser
+version:        0.0.0
+build-type:     Simple
+extra-source-files:
+    doctest.json
+
+library
+  exposed-modules:
+      Simple.Parser
+      Simple.Parser.JSON
+      Simple.Parser.Lib
+  other-modules:
+      Paths_simple_parser
+  hs-source-dirs:
+      src
+  default-extensions: NoImplicitPrelude
+  build-depends:
+      QuickCheck
+    , base
+  default-language: Haskell2010
+
+test-suite doctests
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_simple_parser
+  hs-source-dirs:
+      doctests
+  build-depends:
+      QuickCheck
+    , base
+    , doctest
+    , doctest-discover
+  default-language: Haskell2010
