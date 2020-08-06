@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        os: [ ubuntu-latest ]
         plan:
         - { build: stack, resolver: "--resolver lts-16"  }    # ghc-8.8.3
         exclude:
