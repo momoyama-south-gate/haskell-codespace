@@ -1,0 +1,33 @@
+name: little-scheme
+
+extra-source-files:
+- doctest.json
+
+library:
+  source-dirs: src
+  dependencies:
+  - QuickCheck
+  - base
+  - simple-parser
+  default-extensions:
+  - NoImplicitPrelude
+
+executables:
+  lscheme:
+    source-dirs: exe
+    main: Main.hs
+    dependencies:
+    - base
+    - little-scheme
+    default-extensions:
+    - NoImplicitPrelude
+
+tests:
+  doctests:
+    main: Main.hs
+    source-dirs: doctests
+    dependencies:
+    - base
+    - doctest
+    - doctest-discover
+    - QuickCheck

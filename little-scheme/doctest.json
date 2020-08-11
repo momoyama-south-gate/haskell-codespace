@@ -1,0 +1,6 @@
+{
+  "doctestOptions": [
+    "-XNoImplicitPrelude",
+		"-XTypeApplications"
+  ]
+}
