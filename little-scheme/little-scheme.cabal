@@ -1,0 +1,56 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           little-scheme
+version:        0.0.0
+build-type:     Simple
+extra-source-files:
+    doctest.json
+
+library
+  exposed-modules:
+      Little.Scheme.CLI
+      Little.Scheme.Evaluator
+      Little.Scheme.Parser
+      Little.Scheme.Parser.Lexer
+      Little.Scheme.REPL
+      Little.Scheme.Syntax
+  other-modules:
+      Paths_little_scheme
+  hs-source-dirs:
+      src
+  default-extensions: NoImplicitPrelude
+  build-depends:
+      QuickCheck
+    , base
+    , simple-parser
+  default-language: Haskell2010
+
+executable lscheme
+  main-is: Main.hs
+  other-modules:
+      Paths_little_scheme
+  hs-source-dirs:
+      exe
+  default-extensions: NoImplicitPrelude
+  build-depends:
+      base
+    , little-scheme
+  default-language: Haskell2010
+
+test-suite doctests
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_little_scheme
+  hs-source-dirs:
+      doctests
+  build-depends:
+      QuickCheck
+    , base
+    , doctest
+    , doctest-discover
+  default-language: Haskell2010
