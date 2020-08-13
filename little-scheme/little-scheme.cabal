@@ -15,7 +15,6 @@ library
       Little.Scheme.CLI
       Little.Scheme.Evaluator
       Little.Scheme.Parser
-      Little.Scheme.Parser.Lexer
       Little.Scheme.REPL
       Little.Scheme.Syntax
   other-modules:
